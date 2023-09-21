@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_레이어_1" data-name="레이어 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1658.59 472.58">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        font-family: JCHEadA, HeadLineA;
+        font-size: 300px;
+        letter-spacing: .11em;
+      }
+    </style>
+  </defs>
+  <text class="cls-2" transform="translate(3.84 353.63)"><tspan x="0" y="0">Music Cloud</tspan></text>
+  <rect class="cls-1" x="13.73" y="151.14" width="1603.99" height="203.39"/>
+</svg>
