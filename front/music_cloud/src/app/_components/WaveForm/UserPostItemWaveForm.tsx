@@ -16,11 +16,12 @@ type UserPostITemWaveFormType = {
   clickCanvasProgressBarHandler: (
     event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => void;
-  canvasRef: RefObject<HTMLCanvasElement> | null;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
   music: MusicPostItemType;
   waveform: Float32Array | null;
   isPlaying: boolean;
   audioFile: HTMLAudioElement | null;
+  dataId: number;
 };
 
 export default function UserPostItemWaveForm({
@@ -30,10 +31,10 @@ export default function UserPostItemWaveForm({
   waveform,
   isPlaying,
   audioFile,
+  canvasRef,
+  dataId,
 }: UserPostITemWaveFormType) {
   const initialCanvasRef: RefObject<HTMLCanvasElement> =
-    useRef<HTMLCanvasElement>(null);
-  const canvasRef: RefObject<HTMLCanvasElement> =
     useRef<HTMLCanvasElement>(null);
 
   const drawInitialForm = (
@@ -72,69 +73,43 @@ export default function UserPostItemWaveForm({
     }
   };
 
-  useEffect(() => {
-    // 컴포넌트가 마운트될 때 한 번만 실행됩니다.
-    if (initialCanvasRef.current && initialCanvasRef.current.parentElement) {
-      const canvas = initialCanvasRef.current;
-      const WIDTH = initialCanvasRef.current.parentElement.clientWidth;
-      const HEIGHT = initialCanvasRef.current.parentElement.clientHeight;
-      const canvasCtx = canvas.getContext("2d");
-      // 초기에는 currentTimePercent가 0입니다.
-      drawInitialForm(canvasCtx, initialWaveForm, WIDTH, HEIGHT, 0);
-    }
-  }, [initialWaveForm]);
+  // useEffect(() => {
+  //   // 컴포넌트가 마운트될 때 한 번만 실행됩니다.
+  //   if (initialCanvasRef.current && initialCanvasRef.current.parentElement) {
+  //     const canvas = initialCanvasRef.current;
+  //     const WIDTH = initialCanvasRef.current.parentElement.clientWidth;
+  //     const HEIGHT = initialCanvasRef.current.parentElement.clientHeight;
+  //     const canvasCtx = canvas.getContext("2d");
+  //     // 초기에는 currentTimePercent가 0입니다.
+  //     drawInitialForm(canvasCtx, initialWaveForm, WIDTH, HEIGHT, 0);
+  //   }
+  // }, [initialWaveForm]);
 
-  useEffect(() => {
-    if (audioFile && audioFile instanceof HTMLAudioElement) {
-      console.log(audioFile); // audioFile 객체 확인
-      console.log("audioFile.duration : ", audioFile.duration);
+  // 초기 렌더링때 캔버스 넓이 설정해주기
+  // useEffect(() => {
+  //   if (canvasRef.current) {
+  //     canvasRef.current.width = canvasRef.current.offsetWidth;
+  //   }
+  // }, [canvasRef]);
 
-      const handleTimeUpdate = () => {
-        if (canvasRef.current && canvasRef.current.parentElement) {
-          const canvas = canvasRef.current;
-          const WIDTH = canvasRef.current.parentElement.clientWidth;
-          const HEIGHT = canvasRef.current.parentElement.clientHeight;
-          const canvasCtx = canvas.getContext("2d");
-          const currentTimePercent = audioFile.currentTime / audioFile.duration;
-          console.log("currentTimePercent : ", currentTimePercent);
-          // 노래가 재생될 때마다 색상이 덧입혀집니다.
-          drawInitialForm(
-            canvasCtx,
-            initialWaveForm,
-            WIDTH,
-            HEIGHT,
-            currentTimePercent
-          );
-        }
-      };
+  // // 브라우저 넓이 바뀔때마다 캔버스 사이즈 조절 해주기
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (canvasRef.current && canvasRef.current.parentElement) {
+  //       const parent = canvasRef.current.parentElement;
+  //       console.log(parent.clientWidth);
+  //       canvasRef.current.width = parent.clientWidth;
+  //       canvasRef.current.height = parent.clientHeight;
+  //     }
+  //   };
 
-      audioFile.addEventListener("timeupdate", handleTimeUpdate);
+  //   window.addEventListener("resize", handleResize);
+  //   handleResize(); // 컴포넌트가 마운트될 때 초기 크기 설정
 
-      return () => {
-        audioFile.removeEventListener("timeupdate", handleTimeUpdate);
-      };
-    }
-  }, [audioFile, initialWaveForm]);
-
-  useEffect(() => {
-    if (audioFile && isPlaying) {
-      console.log("audioFile is set:", audioFile); // 인스턴스 확인
-      audioFile.play(); // 선택된 곡에 대한 Audio 재생
-
-      const handleTimeUpdate = () => {
-        console.log("timeupdate event fired"); // 이벤트 리스너 체크
-        // ...
-      };
-
-      audioFile.addEventListener("timeupdate", handleTimeUpdate);
-      console.log("Event listener added"); // 이벤트 리스너 체크
-
-      return () =>
-        audioFile.removeEventListener("timeupdate", handleTimeUpdate);
-    } else if (audioFile) {
-      audioFile.pause(); // 선택되지 않은 다른 곡에 대한 Audio 일시정지
-    }
-  }, [audioFile, isPlaying]);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, [canvasRef]);
 
   // useEffect(() => {
   //   if (!isPlaying && canvasRef.current) {
@@ -154,19 +129,20 @@ export default function UserPostItemWaveForm({
       <div className={user_post_canvas_card}>
         <div className={user_post_canvas_container}>
           <canvas
-            onClick={clickCanvasProgressBarHandler}
-            ref={initialCanvasRef}
-            width={800}
-            height={60}
-            className={user_post_initial_canvas}
-          ></canvas>
-          <canvas
+            data-id={dataId}
             onClick={clickCanvasProgressBarHandler}
             ref={canvasRef}
             width={800}
             height={60}
             className={user_post_initial_canvas}
           ></canvas>
+          {/* <canvas
+            onClick={clickCanvasProgressBarHandler}
+            ref={canvasRef}
+            width={740}
+            height={60}
+            className={user_post_initial_canvas}
+          ></canvas> */}
         </div>
       </div>
     </>

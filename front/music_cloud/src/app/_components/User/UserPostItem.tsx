@@ -17,7 +17,7 @@ import {
   pause_button,
   user_post_play_button_div,
 } from "@/app/_styles/music_player.css";
-import { RefObject } from "react";
+import { RefObject, useRef } from "react";
 import { myStyle } from "@/app/_styles/vars.css";
 import Image from "next/image";
 import { FaPlay } from "react-icons/fa";
@@ -36,9 +36,10 @@ type UserPostItemType = {
     event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => void;
   isPlaying: boolean;
-  canvasRef: RefObject<HTMLCanvasElement> | null;
   waveform: Float32Array | null;
   src: string;
+  registerCanvasRef: (id: number, ref: HTMLCanvasElement) => void;
+  dataId: number;
 };
 
 export default function UserPostItem({
@@ -49,15 +50,23 @@ export default function UserPostItem({
   pauseCurrentSongHandler,
   clickCanvasProgressBarHandler,
   isPlaying,
-  canvasRef,
+  dataId,
   waveform,
   src,
+  registerCanvasRef,
 }: UserPostItemType) {
   const { artistName } = music.artistInfo;
   const { id, image, playCount, liked, title, file, createdAt, likesCount } =
     music;
-
+  const canvasRef: RefObject<HTMLCanvasElement> =
+    useRef<HTMLCanvasElement>(null);
   const [audioFile, setAudioFile] = useState<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      registerCanvasRef(music.id, canvasRef.current);
+    }
+  }, [registerCanvasRef, music.id]);
 
   useEffect(() => {
     // window 객체가 존재하면 브라우저 환경으로 판단
@@ -113,11 +122,12 @@ export default function UserPostItem({
         <UserPostItemWaveForm
           music={music}
           initialWaveForm={initialWaveForm}
-          canvasRef={canvasRef}
           isPlaying={isPlaying}
           clickCanvasProgressBarHandler={clickCanvasProgressBarHandler}
           waveform={waveform}
           audioFile={audioFile}
+          canvasRef={canvasRef}
+          dataId={dataId}
         />
       </div>
     </div>
