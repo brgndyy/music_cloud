@@ -12,7 +12,7 @@ export const content_card_container = style({
   width: "100%",
   height: "auto",
   minHeight: "100%",
-  paddingTop: "4rem",
+  paddingTop: "3.5rem",
   paddingBottom: "4rem",
 });
 
@@ -26,4 +26,9 @@ export const footer_card_container = style({
   zIndex: "10",
   position: "absolute",
   bottom: "0",
+});
+
+export const user_profile_card_container = style({
+  width: "75%",
+  margin: "auto",
 });

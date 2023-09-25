@@ -62,7 +62,7 @@ export const post_heading_tagList_container = style({
   display: "flex",
   maxWidth: "20%",
   flex: "1 1 100%",
-  margin: "0 1.5rem",
+  margin: "0 2.5rem",
 });
 
 export const post_list = style({
@@ -183,4 +183,32 @@ export const music_title = style({
 
 export const artist_name = style({
   color: text1_color_var,
+  transition: "all 0.3s ease",
+  borderBottom: `0.3px solid ${text1_color_var}`,
+  // ":hover": {
+  //   borderBottom: `0.3px solid ${text1_color_var} !important`,
+  // },
+});
+
+export const canvas_container = style({
+  width: "100%",
+});
+
+export const user_post_canvas_card = style({
+  position: "relative",
+  height: "60px",
+  marginTop: "0.7rem",
+});
+
+export const user_post_canvas_container = style({
+  position: "absolute",
+  top: "0",
+  left: "5%",
+  width: "100%",
+  height: "100%",
+});
+
+export const user_post_canvas = style({
+  width: "100%",
+  height: "100%",
 });

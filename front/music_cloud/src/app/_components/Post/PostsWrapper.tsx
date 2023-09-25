@@ -4,6 +4,7 @@ import { post_wrapper } from "@/app/_styles/music_post.css";
 type ArtistInfoType = {
   artistName: string;
   artistFollower: number;
+  artistFollowing: number;
   totalTracks: number;
   avatarImage: string;
   socialProfileLinks: {

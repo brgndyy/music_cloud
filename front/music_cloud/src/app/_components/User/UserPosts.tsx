@@ -1,21 +1,17 @@
 "use client";
-import PostItem from "./PostItem";
-import {
-  music_posts_ul_container,
-  canvas_container,
-} from "@/app/_styles/music_post.css";
+
+import { UserMusicPostsType } from "@/app/_utils/_types/types";
+import { user_posts_container } from "@/app/_styles/user_posts.css";
+import UserPostItem from "./UserPostItem";
 import { useState, useEffect, useCallback, useRef, RefObject } from "react";
-import MusicPlayer from "../Music/MusicPlayer";
 import { MusicPostItemType } from "@/app/_utils/_types/types";
-import HeadingPost from "./HeadingPost";
-import WaveFormCanvas from "../WaveForm/WaveFormCanvas";
 
-type PostListType = {
-  musicData: MusicPostItemType[];
-  volumeValue: number;
-};
-
-export default function PostList({ musicData, volumeValue }: PostListType) {
+export default function UserPosts({
+  musicData,
+  musicWaveForms,
+  volumeValue,
+}: UserMusicPostsType) {
+  const { artistName } = musicData[0].artistInfo;
   const [playerVisible, setPlayerVisible] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState<MusicPostItemType | null>(
     null
@@ -421,47 +417,24 @@ export default function PostList({ musicData, volumeValue }: PostListType) {
 
   return (
     <>
-      <WaveFormCanvas
-        canvasRef={canvasRef}
-        clickCanvasProgressBarHandler={clickCanvasProgressBarHandler}
-      />
-
-      <HeadingPost />
-      <ul className={music_posts_ul_container}>
-        {musicData.map((music) => {
+      <div className={user_posts_container}>
+        {musicData.map((post, index) => {
           return (
-            <PostItem
-              key={music.id}
-              selectSongHandler={selectSongHandler}
-              music={music}
+            <UserPostItem
+              key={post.id}
+              artistName={artistName}
+              artwork={post.image}
+              playCount={post.playCount}
+              liked={post.liked}
+              title={post.title}
+              file={post.file}
+              createdAt={post.createdAt}
+              likesCount={post.likesCount}
+              waveForm={musicWaveForms[index]}
             />
           );
         })}
-      </ul>
-      <MusicPlayer
-        nowPlaying={nowPlaying}
-        visible={playerVisible}
-        selectedId={selectedMusic?.id}
-        image={selectedMusic?.image}
-        title={selectedMusic?.title}
-        artist={selectedMusic?.artistInfo.artistName}
-        playCurrentSongHandler={playCurrentSongHandler}
-        pauseCurrentSongHandler={pauseCurrentSongHandler}
-        nextSongPlayHandler={nextSongPlayHandler}
-        prevSongPlayHandler={prevSongPlayHandler}
-        shuffleActiveHandler={shuffleActiveHandler}
-        isShuffleActive={isShuffleActive}
-        volumeHandler={volumeHandler}
-        volume={volume}
-        currentProgressPercent={currentProgressPercent}
-        progressDragHandler={progressDragHandler}
-        handleMouseUp={handleMouseUp}
-        handleMouseDown={handleMouseDown}
-        progressBarClickHandler={clickProgressBarDivHandler}
-        currentPlayingTime={currentPlayingTime}
-        settingRepeatHandler={settingRepeatHandler}
-        isRepeatActive={isRepeatActive}
-      />
+      </div>
     </>
   );
 }

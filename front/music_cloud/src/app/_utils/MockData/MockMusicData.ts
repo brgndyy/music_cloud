@@ -1,3 +1,5 @@
+import { getWaveFormFromServer } from "../audioWaveForm/getWaveFormFromServer";
+
 export const MockMusicData = [
   {
     id: 522,
@@ -15,8 +17,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BMTJ",
       artistFollower: 260,
+      artistFollowing: 52,
       totalTracks: 152,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image2.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -39,8 +43,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BRGNDY",
       artistFollower: 32,
+      artistFollowing: 124,
       totalTracks: 35,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -56,15 +62,43 @@ export const MockMusicData = [
     likesCount: 35783,
     liked: true,
     image: "/test_image.jpeg",
-    file: "/music/가나다라마바사아자차카타파하.mp3",
+    file: "/music/ROSALISA.wav",
     createdAt: "2023-09-16T09:12:34.440Z",
     updatedAt: "2023-09-16T09:12:34.440Z",
     description: "곡에 대한 설명",
     artistInfo: {
       artistName: "BMTJHGDB NGFHFGD",
       artistFollower: 266570,
+      artistFollowing: 527765,
       totalTracks: 5675,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
+      socialProfileLinks: {
+        instagram: "해당 유저 인스타 아아디",
+        twitter: "해당 유저 트위터 아이디",
+      },
+    },
+  },
+  {
+    id: 20,
+    title: "SUMMER IN DECEMBER",
+    time: 197,
+    tagList: ["deb", "tyler the creator", "kendrick lamar", "A$AP ROCKY"],
+    playCount: 8764,
+    likesCount: 1783,
+    liked: false,
+    image: "/test_image.jpeg",
+    file: "/music/SUMMER IN DECEMBER.mp3",
+    createdAt: "2020-02-16T09:12:34.440Z",
+    updatedAt: "2020-02-16T09:12:34.440Z",
+    description: "곡에 대한 설명",
+    artistInfo: {
+      artistName: "BMTJHGDB NGFHFGD",
+      artistFollower: 266570,
+      artistFollowing: 9860,
+      totalTracks: 5675,
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -87,8 +121,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BMTJHGDBgfdFGD",
       artistFollower: 26670,
+      artistFollowing: 524321,
       totalTracks: 575,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -111,8 +147,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BFMDKVher grds",
       artistFollower: 5270,
+      artistFollowing: 522123,
       totalTracks: 75,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -135,8 +173,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "Bs",
       artistFollower: 520,
+      artistFollowing: 542342,
       totalTracks: 757,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -159,8 +199,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BMTfdJ",
       artistFollower: 260,
+      artistFollowing: 5745652,
       totalTracks: 152,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -183,8 +225,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BRGNDY",
       artistFollower: 32,
+      artistFollowing: 5542342,
       totalTracks: 35,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -200,15 +244,17 @@ export const MockMusicData = [
     likesCount: 35783,
     liked: true,
     image: "/test_image.jpeg",
-    file: "/music/가나다라마바사아자차카타파하.mp3",
+    file: "/music/THE STORY.mp3",
     createdAt: "2023-09-16T09:12:34.440Z",
     updatedAt: "2023-09-16T09:12:34.440Z",
     description: "곡에 대한 설명",
     artistInfo: {
       artistName: "BMTJHGDB NGFHFGD",
       artistFollower: 266570,
+      artistFollowing: 523213,
       totalTracks: 5675,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -231,8 +277,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BMTJHGDBgfdFGD",
       artistFollower: 26670,
+      artistFollowing: 9872,
       totalTracks: 575,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -255,8 +303,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "BFMDKVher grds",
       artistFollower: 5270,
+      artistFollowing: 1252,
       totalTracks: 75,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -279,8 +329,10 @@ export const MockMusicData = [
     artistInfo: {
       artistName: "Bs",
       artistFollower: 520,
+      artistFollowing: 5452,
       totalTracks: 757,
-      avatarImage: "아티스트 프로필 이미지",
+      avatarImage: "/test_user_image1.jpeg",
+      artistDescription: "유저 한줄 소개",
       socialProfileLinks: {
         instagram: "해당 유저 인스타 아아디",
         twitter: "해당 유저 트위터 아이디",
@@ -291,6 +343,28 @@ export const MockMusicData = [
 
 export const getTrendMusicPosts = async () => {
   return MockMusicData;
+};
+
+export const getArtstMusicsAndInfo = (artistName: string) => {
+  const totalData = MockMusicData.filter(
+    (artist) => artist.artistInfo.artistName === artistName
+  );
+
+  return totalData;
+};
+
+export const getMusicWaveForms = async (artistName: string) => {
+  const totalData = MockMusicData.filter(
+    (artist) => artist.artistInfo.artistName === artistName
+  );
+
+  const musicWaveForms = await Promise.all(
+    totalData.map(async (data) => {
+      return await getWaveFormFromServer(data.file);
+    })
+  );
+
+  return musicWaveForms;
 };
 
 // 메인 곡들 관련

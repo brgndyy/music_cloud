@@ -18,7 +18,7 @@ export const music_player_container = style({
   zIndex: "100",
   background: background1_color_var,
   boxShadow: "rgba(0, 0, 0, 0.08) 0px 0px 8px",
-  transform: "translateY(110%)",
+  transform: "translateY(150%)",
   display: "flex",
   justifyContent: "space-between",
   padding: "0.3rem",
@@ -83,6 +83,21 @@ export const prev_button = style({
   width: "1.5rem",
   margin: "0. 0.5rem",
   cursor: "pointer",
+});
+
+export const user_post_play_button_div = style({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "3rem",
+  height: "3rem",
+  margin: "0 1.5rem",
+  border: "unset",
+  borderRadius: "50%",
+  cursor: "pointer",
+
+  background: background_color_var,
+  color: text3_color_var,
 });
 
 export const play_button_div = style({

@@ -34,7 +34,7 @@ globalStyle("h1, h2, h3, p", {
   padding: "0",
 });
 
-globalStyle("a, a:link, a:visited, a:hover", {
+globalStyle("a, a:link, a:visited", {
   textDecoration: "none",
 });
 
@@ -66,4 +66,9 @@ globalStyle("input[type='range']:hover::-webkit-slider-thumb", {
 
 globalStyle(`.${progress_bar_container}:hover + .${progress_bar_ball}`, {
   transform: "scale(1.5)",
+});
+
+globalStyle("canvas", {
+  width: "100%",
+  display: "block",
 });

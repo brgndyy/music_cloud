@@ -13,13 +13,17 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "@vanilla-extract/css": "^1.13.0",
+    "audio-buffer": "^5.0.0",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
     "next": "13.4.19",
+    "node-vibrant": "^3.1.6",
+    "node-web-audio-api": "^0.12.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.11.0",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "web-audio-api": "^0.2.2"
   },
   "devDependencies": {
     "@vanilla-extract/next-plugin": "^2.3.0",

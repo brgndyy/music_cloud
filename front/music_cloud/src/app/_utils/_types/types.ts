@@ -1,8 +1,10 @@
 export type ArtistInfoType = {
   artistName: string;
-  artistFollower: number;
   totalTracks: number;
   avatarImage: string;
+  artistFollower: number;
+  artistFollowing: number;
+  artistDescription?: string;
   socialProfileLinks: {
     instagram?: string;
     twitter?: string;
@@ -27,4 +29,10 @@ export type MusicPostItemType = {
 
 export type MusicPostListType = {
   musicData: MusicPostItemType[];
+};
+
+export type UserMusicPostsType = {
+  musicData: MusicPostItemType[];
+  musicWaveForms: Float32Array[];
+  volumeValue: number;
 };

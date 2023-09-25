@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   console.log("pathName은 ", pathName);
 
   if (pathName.startsWith("/@")) {
-    console.log("유저 프로필 가져와야해요!");
+    // console.log("유저 프로필 가져와야해요!");
   }
 }
 
