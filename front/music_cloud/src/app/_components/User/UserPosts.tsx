@@ -64,54 +64,12 @@ export default function UserPosts({
       let x = 0;
 
       const baseHeight = canvasHeight * 0.4;
-      const variability = 0.6;
+      const variability = 0.8;
       const maxAmplitude = Math.max(...waveform);
 
       const currentX = currentTimePercent * canvasWidth; // 현재 재생 범위
 
-      for (let i = 0; i < waveform.length; i++) {
-        const variation =
-          baseHeight * variability * (waveform[i] / maxAmplitude);
-        const barHeight = baseHeight + variation;
-        const topBarStartY = canvasHeight / 2 - barHeight;
-
-        // 현재 재생 위치보다 왼쪽에 있는 막대의 색상을 변경
-        if (x < currentX) {
-          canvasCtx.fillStyle = "rgb(0, 128, 255)"; // 재생된 부분의 색상 (예: 파란색)
-        } else {
-          canvasCtx.fillStyle = "rgb(92, 92, 92)"; // 아직 재생되지 않은 부분의 색상
-        }
-
-        canvasCtx.fillRect(x, topBarStartY, barWidth, barHeight);
-        canvasCtx.fillStyle =
-          x < currentX ? "rgba(0, 128, 255, 0.7)" : "rgba(92, 92, 92, 0.7)"; // 아래쪽 대칭 부분의 투명도 조절
-        canvasCtx.fillRect(x, canvasHeight / 2, barWidth, barHeight * 0.5);
-
-        x += barWidth + gap;
-      }
-    }
-  };
-
-  const drawWaveForm = (
-    canvasCtx: CanvasRenderingContext2D | null,
-    waveform: Float32Array | null, //
-    canvasWidth: number, // 캔버스 넓이
-    canvasHeight: number, // 캔버스 높이
-    currentTimePercent: number // 현재 재생 위치의 퍼센트
-  ) => {
-    if (waveform && canvasCtx) {
-      console.log("drawWaveForm is called");
-      canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-      const barWidth = 5;
-      const gap = 5;
-      let x = 0;
-
-      const baseHeight = canvasHeight;
-      const variability = 0.4;
-      const maxAmplitude = Math.max(...waveform);
-
-      const currentX = currentTimePercent * canvasWidth; // 현재 재생 범위
+      const barsToDraw = canvasWidth / (barWidth + gap);
 
       for (let i = 0; i < waveform.length; i++) {
         const variation =
@@ -241,8 +199,6 @@ export default function UserPosts({
       audioFile.volume = normalizedVolume;
       const canvasRef = canvasRefs[selectedMusic.id];
 
-      console.log("canvasRef : ", canvasRef);
-
       // 오디오 파일의 재생 시간이 변경될 때마다 호출될 핸들러
       const handleTimeUpdate = () => {
         const currentTimeInSeconds = Math.floor(audioFile.currentTime);
@@ -258,8 +214,8 @@ export default function UserPosts({
 
           if (canvasRef && canvasRef.parentElement && index !== -1) {
             const canvas = canvasRef;
-            const WIDTH = canvasRef.parentElement.clientWidth;
-            const HEIGHT = canvasRef.parentElement.clientHeight;
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
             const canvasCtx = canvas.getContext("2d");
             const currentTimePercent =
               audioFile.currentTime / audioFile.duration;
@@ -320,8 +276,8 @@ export default function UserPosts({
       const ref = canvasRefs[numKey];
       if (ref && ref.parentElement) {
         const canvas = ref;
-        const WIDTH = ref.parentElement.clientWidth;
-        const HEIGHT = ref.parentElement.clientHeight;
+        const WIDTH = canvas.width;
+        const HEIGHT = canvas.height;
         const canvasCtx = canvas.getContext("2d");
 
         const initialWaveForm = initialWaveForms[index];
@@ -474,7 +430,9 @@ export default function UserPosts({
 
   useEffect(() => {
     if (audioFile) {
-      if (nowPlaying) {
+      if (nowPlaying && selectedMusic) {
+        setNowPlayingId(selectedMusic.id);
+
         audioFile
           .play()
           .catch((error) =>
@@ -534,21 +492,18 @@ export default function UserPosts({
   //   });
   // }, [canvasRefs]);
 
+  // 브라우저 넓이 바뀔때마다 캔버스 사이즈 조절 해주기
+
   useEffect(() => {
     const handleResize = () => {
       Object.values(canvasRefs).forEach((canvas, index) => {
         const numKey = Number(canvas);
         const ref = canvasRefs[numKey];
 
-        if (ref && ref.parentElement) {
+        if (ref) {
           const canvas = ref;
-          const WIDTH = ref.parentElement.clientWidth;
-          const HEIGHT = ref.parentElement.clientHeight;
-          const canvasCtx = canvas.getContext("2d");
-
-          const initialWaveForm = initialWaveForms[index];
-
-          drawInitialForm(canvasCtx, initialWaveForm, WIDTH, HEIGHT, 0);
+          canvas.width = canvas.offsetWidth;
+          canvas.height = canvas.offsetHeight;
         }
       });
     };
@@ -559,7 +514,7 @@ export default function UserPosts({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [canvasRefs, initialWaveForms]);
+  }, [canvasRefs]);
 
   return (
     <>

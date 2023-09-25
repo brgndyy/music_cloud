@@ -198,6 +198,7 @@ export const user_post_canvas_card = style({
   position: "relative",
   height: "60px",
   marginTop: "0.7rem",
+  width: "100%",
 });
 
 export const user_post_canvas_container = style({
@@ -210,18 +211,23 @@ export const user_post_canvas_container = style({
 });
 
 export const user_post_initial_canvas = style({
-  width: "100%",
+  width: "90%",
   height: "100%",
   position: "absolute",
   top: "0",
-  left: "0",
+  left: "3%",
 });
 
 export const user_post_canvas = style({
-  width: "100%",
+  width: "90%",
   height: "100%",
   position: "absolute",
   top: "0",
-  left: "0",
-  zIndex: "1",
+  left: "3%",
+  cursor: "pointer",
+  opacity: "0.8",
+  transition: "all 0.3s ease",
+  ":hover": {
+    opacity: " 1",
+  },
 });

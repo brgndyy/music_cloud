@@ -242,6 +242,29 @@ export default function PostList({ musicData, volumeValue }: PostListType) {
     waveform,
   ]);
 
+  // 첫 렌더링시 그려주기
+
+  useEffect(() => {
+    const drawInitialWaveForm = async () => {
+      const firstMusicData = musicData[0];
+
+      const initializedWaveForm = await initializeWaveForm(firstMusicData.file);
+
+      if (canvasRef.current) {
+        const canvas = canvasRef.current;
+        const canvasCtx = canvas.getContext("2d");
+        canvasRef.current.width = canvasRef.current.offsetWidth;
+        canvasRef.current.height = canvasRef.current.offsetHeight;
+        const WIDTH = canvas.width;
+        const HEIGHT = canvas.height
+
+        drawWaveForm(canvasCtx, initializedWaveForm, WIDTH, HEIGHT, 0);
+      }
+    };
+
+    drawInitialWaveForm();
+  }, [audioFile, musicData]);
+
   const progressDragHandler = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -396,11 +419,11 @@ export default function PostList({ musicData, volumeValue }: PostListType) {
   };
 
   // 초기 렌더링때 캔버스 넓이 설정해주기
-  useEffect(() => {
-    if (canvasRef.current) {
-      canvasRef.current.width = canvasRef.current.offsetWidth;
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (canvasRef.current) {
+  //     canvasRef.current.width = canvasRef.current.offsetWidth;
+  //   }
+  // }, []);
 
   // 브라우저 넓이 바뀔때마다 캔버스 사이즈 조절 해주기
   useEffect(() => {

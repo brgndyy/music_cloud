@@ -127,23 +127,14 @@ export default function UserPostItemWaveForm({
   return (
     <>
       <div className={user_post_canvas_card}>
-        <div className={user_post_canvas_container}>
-          <canvas
-            data-id={dataId}
-            onClick={clickCanvasProgressBarHandler}
-            ref={canvasRef}
-            width={800}
-            height={60}
-            className={user_post_initial_canvas}
-          ></canvas>
-          {/* <canvas
-            onClick={clickCanvasProgressBarHandler}
-            ref={canvasRef}
-            width={740}
-            height={60}
-            className={user_post_initial_canvas}
-          ></canvas> */}
-        </div>
+        <canvas
+          data-id={dataId}
+          onClick={clickCanvasProgressBarHandler}
+          ref={canvasRef}
+          width={800}
+          height={60}
+          className={user_post_canvas}
+        ></canvas>
       </div>
     </>
   );

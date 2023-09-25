@@ -19,7 +19,7 @@ export const getWaveFormFromServer = async (fileUrl: string) => {
       ? audioBuffer.getChannelData(1)
       : leftChannel;
 
-  const samples = 150;
+  const samples = 200;
   const blockSize = Math.floor(leftChannel.length / samples);
   let waveform = new Float32Array(samples);
 
