@@ -15,7 +15,7 @@ export default async function ProfilePage({
   const songTitle = params.slug[1];
 
   const musicData = getArtstMusicsAndInfo(slugName);
-  const musicWaveForms = await getMusicWaveForms(slugName);
+  const initialWaveForms = await getMusicWaveForms(slugName);
   const { artistName, avatarImage, artistDescription } =
     musicData[0].artistInfo;
   const gradientColor = await getGradient(avatarImage);
@@ -33,7 +33,7 @@ export default async function ProfilePage({
       <UserProfileCard>
         <UserPosts
           musicData={musicData}
-          musicWaveForms={musicWaveForms}
+          initialWaveForms={initialWaveForms}
           volumeValue={volumeValue}
         />
       </UserProfileCard>

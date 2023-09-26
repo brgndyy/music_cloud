@@ -41,8 +41,8 @@ type MusicPlayerType = {
   artist?: string;
   nowPlaying: boolean;
   selectedId?: number;
-  playCurrentSongHandler: () => void;
-  pauseCurrentSongHandler: () => void;
+  playCurrentSongHandler: (currentMusicId?: number) => void;
+  pauseCurrentSongHandler: (currentMusicId?: number) => void;
   nextSongPlayHandler: (currentMusicId?: number) => void;
   prevSongPlayHandler: (currentMusicId?: number) => void;
   shuffleActiveHandler: () => void;
@@ -144,12 +144,12 @@ export default function MusicPlayer({
             {nowPlaying ? (
               <GiPauseButton
                 className={pause_button}
-                onClick={pauseCurrentSongHandler}
+                onClick={() => pauseCurrentSongHandler(selectedId)}
               />
             ) : (
               <FaPlay
                 className={play_button}
-                onClick={playCurrentSongHandler}
+                onClick={() => playCurrentSongHandler(selectedId)}
               />
             )}
           </div>

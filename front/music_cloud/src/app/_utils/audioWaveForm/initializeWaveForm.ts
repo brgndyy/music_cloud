@@ -12,7 +12,7 @@ export const initializeWaveForm = async (fileUrl: string) => {
         ? audioBuffer.getChannelData(1)
         : leftChannel;
 
-    const samples = 200; // 원하는 샘플 수 많아질수록 오디오 막대들이 빽빽해짐
+    const samples = 150; // 원하는 샘플 수 많아질수록 오디오 막대들이 빽빽해짐
     const blockSize = Math.floor(leftChannel.length / samples);
     let waveform = new Float32Array(samples);
 

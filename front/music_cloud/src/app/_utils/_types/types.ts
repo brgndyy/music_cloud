@@ -33,6 +33,6 @@ export type MusicPostListType = {
 
 export type UserMusicPostsType = {
   musicData: MusicPostItemType[];
-  musicWaveForms: Float32Array[];
+  initialWaveForms: Float32Array[];
   volumeValue: number;
 };

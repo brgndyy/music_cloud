@@ -5,18 +5,22 @@ import { user_posts_container } from "@/app/_styles/user_posts.css";
 import UserPostItem from "./UserPostItem";
 import { useState, useEffect, useCallback, useRef, RefObject } from "react";
 import { MusicPostItemType } from "@/app/_utils/_types/types";
+import MusicPlayer from "../Music/MusicPlayer";
+import { initializeWaveForm } from "@/app/_utils/audioWaveForm/initializeWaveForm";
 
 export default function UserPosts({
   musicData,
-  musicWaveForms,
+  initialWaveForms,
   volumeValue,
 }: UserMusicPostsType) {
-  const { artistName } = musicData[0].artistInfo;
   const [playerVisible, setPlayerVisible] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState<MusicPostItemType | null>(
     null
   );
   const [nowPlaying, setNowPlaying] = useState(false);
+  const [nowPlayingId, setNowPlayingId] = useState<number | undefined>(
+    undefined
+  );
   const [audioFile, setAudioFile] = useState<HTMLAudioElement | null>(null);
   const [isShuffleActive, setIsShuffleActive] = useState(false);
   const [isRepeatActive, setIsRepeatActive] = useState(false);
@@ -33,7 +37,6 @@ export default function UserPosts({
   const settingRepeatHandler = () => {
     setIsRepeatActive(!isRepeatActive);
   };
-
   const drawWaveForm = (
     canvasCtx: CanvasRenderingContext2D | null,
     waveform: Float32Array | null, //
@@ -42,13 +45,14 @@ export default function UserPosts({
     currentTimePercent: number // 현재 재생 위치의 퍼센트
   ) => {
     if (waveform && canvasCtx) {
+      console.log("drawWaveForm is called");
       canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
       const barWidth = 5;
       const gap = 5;
       let x = 0;
 
-      const baseHeight = canvasHeight * 0.2;
+      const baseHeight = canvasHeight;
       const variability = 0.4;
       const maxAmplitude = Math.max(...waveform);
 
@@ -77,43 +81,9 @@ export default function UserPosts({
     }
   };
 
-  const initializeWaveForm = async (fileUrl: string) => {
-    try {
-      const audioContext = new AudioContext();
-      const res = await fetch(`${fileUrl}`);
-
-      const data = await res.arrayBuffer();
-      const audioBuffer = await audioContext.decodeAudioData(data);
-
-      const leftChannel = audioBuffer.getChannelData(0);
-      const rightChannel =
-        audioBuffer.numberOfChannels > 1
-          ? audioBuffer.getChannelData(1)
-          : leftChannel;
-
-      const samples = 200; // 원하는 샘플 수 많아질수록 오디오 막대들이 빽빽해짐
-      const blockSize = Math.floor(leftChannel.length / samples);
-      let waveform = new Float32Array(samples);
-
-      for (let i = 0; i < samples; i++) {
-        let blockStart = i * blockSize;
-        let sum = 0;
-        for (let j = 0; j < blockSize; j++) {
-          sum +=
-            (leftChannel[blockStart + j] + rightChannel[blockStart + j]) / 2;
-        }
-        waveform[i] = sum / blockSize;
-      }
-
-      return waveform;
-    } catch (err) {
-      console.error("WaveForm 생성 중 오류가 발생했어요 ! ", err);
-      return null;
-    }
-  };
-
   const setNewAudioFile = useCallback(
     async (music: MusicPostItemType) => {
+      console.log(music);
       // 기존에 존재하던 음악 파일 언마운트 해주기
       if (audioFile) {
         audioFile.pause();
@@ -123,10 +93,10 @@ export default function UserPosts({
 
       const newAudioFile = new Audio(music.file);
       setAudioFile(newAudioFile);
+      console.log(newAudioFile);
       setNowPlaying(true);
       setSelectedMusic(music);
       const initializedWaveForm = await initializeWaveForm(music.file);
-
       setWaveform(initializedWaveForm);
     },
     [audioFile]
@@ -182,6 +152,7 @@ export default function UserPosts({
 
   useEffect(() => {
     if (audioFile) {
+      console.log("audioFile 재생중이에요!");
       // 쿠키에 있던 볼륨 값 들고와서 오디오 자체 볼륨 설정해주기
       const normalizedVolume = volume / 100;
       audioFile.volume = normalizedVolume;
@@ -194,15 +165,15 @@ export default function UserPosts({
         setCurrentProgressPercent(percent);
         setCurrentPlayingTime(currentTimeInSeconds);
 
-        if (canvasRef.current) {
-          const canvas = canvasRef.current;
-          const canvasCtx = canvas.getContext("2d");
-          const WIDTH = canvas.width;
-          const HEIGHT = canvas.height;
-          const currentTimePercent = audioFile.currentTime / audioFile.duration;
+        // if (canvasRef.current) {
+        //   const canvas = canvasRef.current;
+        //   const canvasCtx = canvas.getContext("2d");
+        //   const WIDTH = canvas.width;
+        //   const HEIGHT = canvas.height;
+        //   const currentTimePercent = audioFile.currentTime / audioFile.duration;
 
-          drawWaveForm(canvasCtx, waveform, WIDTH, HEIGHT, currentTimePercent);
-        }
+        //   drawWaveForm(canvasCtx, waveform, WIDTH, HEIGHT, currentTimePercent);
+        // }
       };
 
       const handleAudioEnded = () => {
@@ -321,12 +292,25 @@ export default function UserPosts({
 
   const selectSongHandler = async (music: MusicPostItemType) => {
     setPlayerVisible(true);
-
-    if (selectedMusic && selectedMusic.id === music.id) {
-      // 같은 노래를 클릭한 경우 일시정지
-      setNowPlaying(!nowPlaying);
+    if (nowPlayingId && nowPlayingId !== music.id) {
+      if (audioFile) {
+        audioFile.pause(); // 현재 재생 중인 오디오를 멈춤
+      }
+      setNowPlaying(false); // 현재 재생 중인 상태를 false로 설정
+      await setNewAudioFile(music); // 새로운 오디오를 설정
+    } else if (audioFile) {
+      if (audioFile.paused) {
+        audioFile.play(); // 만약 오디오가 일시정지 상태라면 재생
+      } else {
+        audioFile.pause(); // 만약 오디오가 재생 중이라면 일시정지
+      }
+      setNowPlaying(!audioFile.paused); // 현재 재생 중인 상태를 업데이트
     } else {
-      await setNewAudioFile(music);
+      await setNewAudioFile(music); // 오디오 파일이 없다면 새로운 오디오를 설정
+    }
+
+    if (music.id !== undefined) {
+      setNowPlayingId(music.id); // 재생 중인 노래의 ID를 저장
     }
   };
 
@@ -377,14 +361,17 @@ export default function UserPosts({
     await setNewAudioFile(musicData[prevIndex]);
   };
 
-  const playCurrentSongHandler = () => {
+  const playCurrentSongHandler = (currentMusicId?: number) => {
     if (audioFile) {
       audioFile.play();
       setNowPlaying(true);
+      if (currentMusicId !== undefined) {
+        setNowPlayingId(currentMusicId);
+      }
     }
   };
 
-  const pauseCurrentSongHandler = () => {
+  const pauseCurrentSongHandler = (currentMusicId?: number) => {
     if (audioFile) {
       audioFile.pause();
       setNowPlaying(false);
@@ -418,22 +405,48 @@ export default function UserPosts({
   return (
     <>
       <div className={user_posts_container}>
-        {musicData.map((post, index) => {
+        {musicData.map((music, index) => {
+          const isPlaying = nowPlayingId === music.id;
           return (
             <UserPostItem
-              key={post.id}
-              artistName={artistName}
-              artwork={post.image}
-              playCount={post.playCount}
-              liked={post.liked}
-              title={post.title}
-              file={post.file}
-              createdAt={post.createdAt}
-              likesCount={post.likesCount}
-              waveForm={musicWaveForms[index]}
+              key={music.id}
+              music={music}
+              selectSongHandler={selectSongHandler}
+              initialWaveForm={initialWaveForms[index]}
+              nowPlaying={nowPlaying}
+              isPlaying={isPlaying}
+              pauseCurrentSongHandler={pauseCurrentSongHandler}
+              clickCanvasProgressBarHandler={clickCanvasProgressBarHandler}
+              canvasRef={canvasRef}
+              waveform={waveform}
+              audioFile={audioFile}
             />
           );
         })}
+        <MusicPlayer
+          nowPlaying={nowPlaying}
+          visible={playerVisible}
+          selectedId={selectedMusic?.id}
+          image={selectedMusic?.image}
+          title={selectedMusic?.title}
+          artist={selectedMusic?.artistInfo.artistName}
+          playCurrentSongHandler={playCurrentSongHandler}
+          pauseCurrentSongHandler={pauseCurrentSongHandler}
+          nextSongPlayHandler={nextSongPlayHandler}
+          prevSongPlayHandler={prevSongPlayHandler}
+          shuffleActiveHandler={shuffleActiveHandler}
+          isShuffleActive={isShuffleActive}
+          volumeHandler={volumeHandler}
+          volume={volume}
+          currentProgressPercent={currentProgressPercent}
+          progressDragHandler={progressDragHandler}
+          handleMouseUp={handleMouseUp}
+          handleMouseDown={handleMouseDown}
+          progressBarClickHandler={clickProgressBarDivHandler}
+          currentPlayingTime={currentPlayingTime}
+          settingRepeatHandler={settingRepeatHandler}
+          isRepeatActive={isRepeatActive}
+        />
       </div>
     </>
   );

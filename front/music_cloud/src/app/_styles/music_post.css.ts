@@ -206,9 +206,22 @@ export const user_post_canvas_container = style({
   left: "5%",
   width: "100%",
   height: "100%",
+  cursor: "pointer",
+});
+
+export const user_post_initial_canvas = style({
+  width: "100%",
+  height: "100%",
+  position: "absolute",
+  top: "0",
+  left: "0",
 });
 
 export const user_post_canvas = style({
   width: "100%",
   height: "100%",
+  position: "absolute",
+  top: "0",
+  left: "0",
+  zIndex: "1",
 });
