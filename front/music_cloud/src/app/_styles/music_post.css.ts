@@ -177,17 +177,51 @@ export const track_tag_text = style({
 });
 
 export const music_title = style({
-  fontWeight: "bold",
   color: text1_color_var,
+  position: "relative",
+  transition: "all 0.3s ease",
+
+  "::before": {
+    content: "",
+    position: "absolute",
+    width: "100%",
+    height: "1px",
+    background: text1_color_var,
+    bottom: "0",
+    left: "0",
+    opacity: "0",
+    transition: "opacity 0.3s ease",
+  },
+
+  selectors: {
+    "&:hover::before": {
+      opacity: "1",
+    },
+  },
 });
 
 export const artist_name = style({
   color: text1_color_var,
+  position: "relative",
   transition: "all 0.3s ease",
-  borderBottom: `0.3px solid ${text1_color_var}`,
-  // ":hover": {
-  //   borderBottom: `0.3px solid ${text1_color_var} !important`,
-  // },
+
+  "::before": {
+    content: "",
+    position: "absolute",
+    width: "100%",
+    height: "1px",
+    background: text1_color_var,
+    bottom: "0",
+    left: "0",
+    opacity: "0",
+    transition: "opacity 0.3s ease",
+  },
+
+  selectors: {
+    "&:hover::before": {
+      opacity: "1",
+    },
+  },
 });
 
 export const canvas_container = style({

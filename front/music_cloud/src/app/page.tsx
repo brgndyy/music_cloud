@@ -5,12 +5,11 @@ import { getVolumeCookieValue } from "./_utils/getVolumeCookieValue";
 
 export default async function Home() {
   const musicData = await getTrendMusicPosts();
-  const volumeValue = getVolumeCookieValue();
 
   return (
     <>
       <Banner />
-      <PostsWrapper musicData={musicData} volumeValue={volumeValue} />
+      <PostsWrapper musicData={musicData} />
     </>
   );
 }

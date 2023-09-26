@@ -8,6 +8,8 @@ export const text1_color_var = createVar();
 export const text2_color_var = createVar();
 export const text3_color_var = createVar();
 export const text4_color_var = createVar();
+export const pale_text_color_var = createVar();
+export const pale_text2_color_var = createVar();
 export const border_color_var = createVar();
 export const background1_color_var = createVar();
 export const background2_color_var = createVar();
@@ -23,7 +25,9 @@ export const myStyle = style({
     [text1_color_var]: "#666",
     [text2_color_var]: "#000",
     [text3_color_var]: "#fff",
-    [text4_color_var]: "#fff",
+    [text4_color_var]: "#1e1e1e",
+    [pale_text_color_var]: "#b7b7b7",
+    [pale_text2_color_var]: "#b7b7b7",
     [button_background_color_var]: "#fff",
     [button_text_color_var]: "#fff",
     [banner_background_color_var]: "#fff",
@@ -42,7 +46,9 @@ export const myStyle = style({
         [text1_color_var]: "#000",
         [text2_color_var]: "#fff",
         [text3_color_var]: "#fff",
-        [text4_color_var]: "#fff",
+        [text4_color_var]: "#1e1e1e",
+        [pale_text_color_var]: "#b7b7b7",
+        [pale_text2_color_var]: "#b7b7b7",
         [button_background_color_var]: "#fff",
         [button_text_color_var]: "#fff",
         [banner_background_color_var]: "#fff",

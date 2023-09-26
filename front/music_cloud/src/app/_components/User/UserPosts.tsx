@@ -11,7 +11,6 @@ import { initializeWaveForm } from "@/app/_utils/audioWaveForm/initializeWaveFor
 export default function UserPosts({
   musicData,
   initialWaveForms,
-  volumeValue,
 }: UserMusicPostsType) {
   const [playerVisible, setPlayerVisible] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState<MusicPostItemType | null>(
@@ -25,7 +24,7 @@ export default function UserPosts({
   const [isShuffleActive, setIsShuffleActive] = useState(false);
   const [isRepeatActive, setIsRepeatActive] = useState(false);
   const [shuffledList, setShuffledList] = useState<MusicPostItemType[]>([]);
-  const [volume, setVolume] = useState<number>(volumeValue);
+  const [volume, setVolume] = useState<number>(0);
   const [currentProgressPercent, setCurrentProgressPercent] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [initialX, setInitialX] = useState<number | null>(null);
@@ -405,6 +404,18 @@ export default function UserPosts({
     });
   };
 
+  // 초기 렌더링시 볼륨 값 가져오기
+  useEffect(() => {
+    const fetchVolume = async () => {
+      const response = await fetch("/api/volume");
+      const { volume } = await response.json();
+
+      setVolume(volume);
+    };
+
+    fetchVolume();
+  }, []);
+
   const shuffleActiveHandler = () => {
     setIsShuffleActive(!isShuffleActive);
   };
@@ -442,7 +453,7 @@ export default function UserPosts({
         audioFile.pause();
       }
     }
-  }, [nowPlaying, audioFile]);
+  }, [nowPlaying, audioFile, selectedMusic]);
 
   const prevSongPlayHandler = async (currentMusicId?: number) => {
     if (typeof currentMusicId === "undefined") {
@@ -494,27 +505,32 @@ export default function UserPosts({
 
   // 브라우저 넓이 바뀔때마다 캔버스 사이즈 조절 해주기
 
-  useEffect(() => {
-    const handleResize = () => {
-      Object.values(canvasRefs).forEach((canvas, index) => {
-        const numKey = Number(canvas);
-        const ref = canvasRefs[numKey];
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     Object.values(canvasRefs).forEach((canvas) => {
+  //       const numKey = Number(canvas);
+  //       const ref = canvasRefs[numKey];
 
-        if (ref) {
-          const canvas = ref;
-          canvas.width = canvas.offsetWidth;
-          canvas.height = canvas.offsetHeight;
-        }
-      });
-    };
+  //       console.log("ref : ", ref);
 
-    window.addEventListener("resize", handleResize);
-    handleResize(); // 초기 크기 설정
+  //       if (ref) {
+  //         const canvas = ref;
+  //         canvas.width = canvas.offsetWidth;
+  //         canvas.height = canvas.offsetHeight;
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [canvasRefs]);
+  //         console.log("canvas.offsetWidth: ", canvas.offsetWidth);
+  //         console.log("canvas.offsetHeight: ", canvas.offsetHeight);
+  //       }
+  //     });
+  //   };
+
+  //   window.addEventListener("resize", handleResize);
+  //   handleResize(); // 초기 크기 설정
+
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, [canvasRefs]);
 
   return (
     <>

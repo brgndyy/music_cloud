@@ -367,6 +367,16 @@ export const getMusicWaveForms = async (artistName: string) => {
   return musicWaveForms;
 };
 
+export const getMusicDataFromTitle = (artistName: string, title: string) => {
+  console.log("artistName : ", artistName);
+  console.log("title : ", title);
+  const totalData = MockMusicData.filter(
+    (artist) =>
+      artist.artistInfo.artistName === artistName && artist.title === title
+  );
+
+  return totalData;
+};
 // 메인 곡들 관련
 // url/songs => 모든 곡들 get // 좋아요 많은수의 섹션, 최신 섹션 별로 GET 요청
 

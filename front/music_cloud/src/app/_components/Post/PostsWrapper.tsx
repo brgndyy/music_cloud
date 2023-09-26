@@ -31,18 +31,18 @@ type MusicPostItemType = {
 
 type MusicPostListType = {
   musicData: MusicPostItemType[];
-  volumeValue: number;
+
 };
 
 export default function PostsWrapper({
   musicData,
-  volumeValue,
+
 }: MusicPostListType) {
   return (
     <>
       <div className={post_wrapper}>
         <div>트렌딩 이나 최신 섹션 고를수 있는 부분</div>
-        <PostList musicData={musicData} volumeValue={volumeValue} />
+        <PostList musicData={musicData} />
       </div>
     </>
   );

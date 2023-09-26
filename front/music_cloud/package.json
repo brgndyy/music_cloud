@@ -16,6 +16,7 @@
     "audio-buffer": "^5.0.0",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
+    "moment": "^2.29.4",
     "next": "13.4.19",
     "node-vibrant": "^3.1.6",
     "node-web-audio-api": "^0.12.0",

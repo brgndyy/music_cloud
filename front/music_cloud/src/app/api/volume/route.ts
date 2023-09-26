@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 const TEN_YEARS_IN_SECONDS = 60 * 60 * 24 * 365 * 10;
 
 export const POST = async (request: Request) => {
@@ -15,4 +16,12 @@ export const POST = async (request: Request) => {
   });
 
   return response;
+};
+
+export const GET = async (request: Request, response: Response) => {
+  const cookiesStore = cookies();
+  const volumeCookie = cookiesStore.get("volume") || { value: 100 };
+  const volumeCookieValue = Number(volumeCookie.value) || 100;
+
+  return NextResponse.json({ volume: volumeCookieValue });
 };

@@ -11,6 +11,11 @@ import {
   created_at_and_likes_container,
   created_at,
   likes,
+  playCount_and_comment_container,
+  playCountNum,
+  comment,
+  play_icon,
+  comment_icon,
 } from "@/app/_styles/user_posts.css";
 import {
   play_button,
@@ -25,6 +30,9 @@ import UserPostItemWaveForm from "../WaveForm/UserPostItemWaveForm";
 import { MusicPostItemType } from "@/app/_utils/_types/types";
 import { GiPauseButton } from "react-icons/gi";
 import { useEffect, useState } from "react";
+import { getFormattedDate } from "@/app/_utils/getFormattedDate";
+import Link from "next/link";
+import {BiSolidComment} from 'react-icons/bi'
 
 type UserPostItemType = {
   initialWaveForm: Float32Array;
@@ -60,7 +68,6 @@ export default function UserPostItem({
     music;
   const canvasRef: RefObject<HTMLCanvasElement> =
     useRef<HTMLCanvasElement>(null);
-  const [audioFile, setAudioFile] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -68,21 +75,7 @@ export default function UserPostItem({
     }
   }, [registerCanvasRef, music.id]);
 
-  useEffect(() => {
-    // window 객체가 존재하면 브라우저 환경으로 판단
-    if (typeof window !== "undefined") {
-      const newAudioFile = new Audio(src); // const로 선언
-      setAudioFile(newAudioFile);
-    }
-
-    // 컴포넌트가 언마운트될 때 오디오 객체를 정리
-    return () => {
-      if (audioFile) {
-        audioFile.pause();
-        setAudioFile(null);
-      }
-    };
-  }, [src]); // 의존성 배열에서 audioFile 제거
+  const formattedDate = getFormattedDate(createdAt);
 
   return (
     <div className={user_post_item_container}>
@@ -112,11 +105,16 @@ export default function UserPostItem({
           </div>
           <div className={artistName_and_title_container}>
             <div className={artist_name}>{artistName}</div>
-            <div className={song_title}>{title}</div>
+            <Link
+              href={`/@${artistName}/${title}`}
+              className={`${song_title} ${myStyle}`}
+            >
+              {title}
+            </Link>
           </div>
           <div className={created_at_and_likes_container}>
-            <div className={created_at}>{createdAt}</div>
-            <div className={likes}>{likesCount}</div>
+            <div className={`${created_at} ${myStyle}`}>{formattedDate}</div>
+            <div className={`${likes} ${myStyle}`}>{likesCount}</div>
           </div>
         </div>
         <UserPostItemWaveForm
@@ -125,10 +123,18 @@ export default function UserPostItem({
           isPlaying={isPlaying}
           clickCanvasProgressBarHandler={clickCanvasProgressBarHandler}
           waveform={waveform}
-          audioFile={audioFile}
           canvasRef={canvasRef}
           dataId={dataId}
         />
+        <div className={`${playCount_and_comment_container} ${myStyle}`}>
+          <div className = {playCountNum}>
+          <FaPlay className ={play_icon} /> {playCount}
+            </div>
+              <div className={comment}>
+                <BiSolidComment className = {comment_icon}/>
+                10
+              </div>
+        </div>
       </div>
     </div>
   );

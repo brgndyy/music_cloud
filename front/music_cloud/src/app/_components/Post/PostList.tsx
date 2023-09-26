@@ -12,10 +12,9 @@ import WaveFormCanvas from "../WaveForm/WaveFormCanvas";
 
 type PostListType = {
   musicData: MusicPostItemType[];
-  volumeValue: number;
 };
 
-export default function PostList({ musicData, volumeValue }: PostListType) {
+export default function PostList({ musicData }: PostListType) {
   const [playerVisible, setPlayerVisible] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState<MusicPostItemType | null>(
     null
@@ -25,7 +24,7 @@ export default function PostList({ musicData, volumeValue }: PostListType) {
   const [isShuffleActive, setIsShuffleActive] = useState(false);
   const [isRepeatActive, setIsRepeatActive] = useState(false);
   const [shuffledList, setShuffledList] = useState<MusicPostItemType[]>([]);
-  const [volume, setVolume] = useState<number>(volumeValue);
+  const [volume, setVolume] = useState<number>(0);
   const [currentProgressPercent, setCurrentProgressPercent] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [initialX, setInitialX] = useState<number | null>(null);
@@ -256,7 +255,7 @@ export default function PostList({ musicData, volumeValue }: PostListType) {
         canvasRef.current.width = canvasRef.current.offsetWidth;
         canvasRef.current.height = canvasRef.current.offsetHeight;
         const WIDTH = canvas.width;
-        const HEIGHT = canvas.height
+        const HEIGHT = canvas.height;
 
         drawWaveForm(canvasCtx, initializedWaveForm, WIDTH, HEIGHT, 0);
       }
@@ -332,6 +331,18 @@ export default function PostList({ musicData, volumeValue }: PostListType) {
       }),
     });
   };
+
+  // 초기 렌더링시 볼륨 값 가져오기
+  useEffect(() => {
+    const fetchVolume = async () => {
+      const response = await fetch("/api/volume");
+      const { volume } = await response.json();
+
+      setVolume(volume);
+    };
+
+    fetchVolume();
+  }, []);
 
   const shuffleActiveHandler = () => {
     setIsShuffleActive(!isShuffleActive);
@@ -426,21 +437,22 @@ export default function PostList({ musicData, volumeValue }: PostListType) {
   // }, []);
 
   // 브라우저 넓이 바뀔때마다 캔버스 사이즈 조절 해주기
-  useEffect(() => {
-    const handleResize = () => {
-      if (canvasRef.current) {
-        canvasRef.current.width = canvasRef.current.offsetWidth;
-        canvasRef.current.height = canvasRef.current.offsetHeight;
-      }
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (canvasRef.current) {
+  //       canvasRef.current.width = canvasRef.current.offsetWidth;
+  //       canvasRef.current.height = canvasRef.current.offsetHeight;
 
-    window.addEventListener("resize", handleResize);
-    handleResize(); // 초기 크기 설정
+  //     }
+  //   };
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  //   window.addEventListener("resize", handleResize);
+  //   handleResize(); // 초기 크기 설정
+
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
 
   return (
     <>
