@@ -419,7 +419,7 @@ export default function UserPosts({
               clickCanvasProgressBarHandler={clickCanvasProgressBarHandler}
               canvasRef={canvasRef}
               waveform={waveform}
-              audioFile={audioFile}
+              src={music.file}
             />
           );
         })}

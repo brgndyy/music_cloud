@@ -24,6 +24,7 @@ import { FaPlay } from "react-icons/fa";
 import UserPostItemWaveForm from "../WaveForm/UserPostItemWaveForm";
 import { MusicPostItemType } from "@/app/_utils/_types/types";
 import { GiPauseButton } from "react-icons/gi";
+import { useEffect, useState } from "react";
 
 type UserPostItemType = {
   initialWaveForm: Float32Array;
@@ -37,7 +38,7 @@ type UserPostItemType = {
   isPlaying: boolean;
   canvasRef: RefObject<HTMLCanvasElement> | null;
   waveform: Float32Array | null;
-  audioFile: HTMLAudioElement | null;
+  src: string;
 };
 
 export default function UserPostItem({
@@ -50,11 +51,29 @@ export default function UserPostItem({
   isPlaying,
   canvasRef,
   waveform,
-  audioFile,
+  src,
 }: UserPostItemType) {
   const { artistName } = music.artistInfo;
   const { id, image, playCount, liked, title, file, createdAt, likesCount } =
     music;
+
+  const [audioFile, setAudioFile] = useState<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // window 객체가 존재하면 브라우저 환경으로 판단
+    if (typeof window !== "undefined") {
+      const newAudioFile = new Audio(src); // const로 선언
+      setAudioFile(newAudioFile);
+    }
+
+    // 컴포넌트가 언마운트될 때 오디오 객체를 정리
+    return () => {
+      if (audioFile) {
+        audioFile.pause();
+        setAudioFile(null);
+      }
+    };
+  }, [src]); // 의존성 배열에서 audioFile 제거
 
   return (
     <div className={user_post_item_container}>

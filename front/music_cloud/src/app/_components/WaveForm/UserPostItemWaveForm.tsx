@@ -85,18 +85,18 @@ export default function UserPostItemWaveForm({
   }, [initialWaveForm]);
 
   useEffect(() => {
-    // audioFile이 바뀔 때마다 실행됩니다.
-    if (audioFile) {
+    if (audioFile && audioFile instanceof HTMLAudioElement) {
+      console.log(audioFile); // audioFile 객체 확인
+      console.log("audioFile.duration : ", audioFile.duration);
+
       const handleTimeUpdate = () => {
-        if (
-          initialCanvasRef.current &&
-          initialCanvasRef.current.parentElement
-        ) {
-          const canvas = initialCanvasRef.current;
-          const WIDTH = initialCanvasRef.current.parentElement.clientWidth;
-          const HEIGHT = initialCanvasRef.current.parentElement.clientHeight;
+        if (canvasRef.current && canvasRef.current.parentElement) {
+          const canvas = canvasRef.current;
+          const WIDTH = canvasRef.current.parentElement.clientWidth;
+          const HEIGHT = canvasRef.current.parentElement.clientHeight;
           const canvasCtx = canvas.getContext("2d");
           const currentTimePercent = audioFile.currentTime / audioFile.duration;
+          console.log("currentTimePercent : ", currentTimePercent);
           // 노래가 재생될 때마다 색상이 덧입혀집니다.
           drawInitialForm(
             canvasCtx,
@@ -115,6 +115,26 @@ export default function UserPostItemWaveForm({
       };
     }
   }, [audioFile, initialWaveForm]);
+
+  useEffect(() => {
+    if (audioFile && isPlaying) {
+      console.log("audioFile is set:", audioFile); // 인스턴스 확인
+      audioFile.play(); // 선택된 곡에 대한 Audio 재생
+
+      const handleTimeUpdate = () => {
+        console.log("timeupdate event fired"); // 이벤트 리스너 체크
+        // ...
+      };
+
+      audioFile.addEventListener("timeupdate", handleTimeUpdate);
+      console.log("Event listener added"); // 이벤트 리스너 체크
+
+      return () =>
+        audioFile.removeEventListener("timeupdate", handleTimeUpdate);
+    } else if (audioFile) {
+      audioFile.pause(); // 선택되지 않은 다른 곡에 대한 Audio 일시정지
+    }
+  }, [audioFile, isPlaying]);
 
   // useEffect(() => {
   //   if (!isPlaying && canvasRef.current) {
@@ -136,6 +156,13 @@ export default function UserPostItemWaveForm({
           <canvas
             onClick={clickCanvasProgressBarHandler}
             ref={initialCanvasRef}
+            width={800}
+            height={60}
+            className={user_post_initial_canvas}
+          ></canvas>
+          <canvas
+            onClick={clickCanvasProgressBarHandler}
+            ref={canvasRef}
             width={800}
             height={60}
             className={user_post_initial_canvas}
