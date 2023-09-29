@@ -15,17 +15,18 @@ export default async function ProfilePage({
   params: { slug: string };
 }) {
   const slugName = params.slug[0].replace("%40", "").replace("%20", " ");
-  const songTitle = params.slug[1].replace("%40", "").replace("%20", " ");
+  const songTitle = decodeURIComponent(params.slug[1].replace("%40", "@"));
   let musicDataFromTitle;
   let gradientColorFromArtwork;
-  let totalMusicData;
+  let selectedMusicData;
 
   // 노래 제목까지 그대로 있는 페이지로 접속했을때
   if (songTitle) {
     musicDataFromTitle = getMusicDataFromTitle(slugName, songTitle);
+
     const { image } = musicDataFromTitle[0];
 
-    totalMusicData = musicDataFromTitle[0];
+    selectedMusicData = musicDataFromTitle[0];
     gradientColorFromArtwork = await getGradient(image);
   }
 
@@ -38,10 +39,11 @@ export default async function ProfilePage({
 
   return (
     <>
-      {totalMusicData && gradientColorFromArtwork ? (
+      {selectedMusicData && gradientColorFromArtwork ? (
         <UserPostSongHeader
           gradientColor={gradientColorFromArtwork}
-          musicData={totalMusicData}
+          selectedMusicData={selectedMusicData}
+          musicData={musicData}
         />
       ) : (
         <>
