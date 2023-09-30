@@ -176,6 +176,7 @@ export default function UserPostSongHeader({
     async (music: MusicPostItemType) => {
       // 기존에 존재하던 음악 파일 언마운트 해주기
       if (audioFile) {
+        setIsFirstSong(false);
         audioFile.pause();
         setAudioFile(null); // 기존 오디오 객체 해제
         await new Promise((resolve) => setTimeout(resolve, 10)); // 일시적인 딜레이 추가
@@ -221,6 +222,7 @@ export default function UserPostSongHeader({
 
   const nextSongPlayHandler = useCallback(
     async (currentMusicId?: number) => {
+      setIsFirstSong(false);
       if (typeof currentMusicId === "undefined") {
         return;
       }
@@ -254,9 +256,10 @@ export default function UserPostSongHeader({
         const percent = (audioFile.currentTime / audioFile.duration) * 100;
         setCurrentProgressPercent(percent);
         setCurrentPlayingTime(currentTimeInSeconds);
+        console.log(isFirstSong);
 
         if (canvasRef.current) {
-          if (!isFirstSong) return; // 첫 번째 노래가 아니면 함수를 종료.
+          if (!isFirstSong) return; // 첫 번째 노래가 아니면 함수 실행 안함.
           const canvas = canvasRef.current;
           const canvasCtx = canvas.getContext("2d");
           const WIDTH = canvas.width;
@@ -298,10 +301,30 @@ export default function UserPostSongHeader({
         audioFile.removeEventListener("ended", handleAudioEnded);
       };
     }
-  }, [audioFile, initialWaveform, nextSongPlayHandler]);
+  }, [
+    audioFile,
+    initialWaveform,
+    nextSongPlayHandler,
+    isFirstSong,
+    isRepeatActive,
+    selectedMusic,
+    volume,
+  ]);
+
+  // 첫번째 노래 재생 끝나고 다른 노래 재생될때 노래 재생 초기화
+  useEffect(() => {
+    if (!isFirstSong && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const canvasCtx = canvas.getContext("2d");
+      const WIDTH = canvas.width;
+      const HEIGHT = canvas.height;
+
+      drawWaveForm(canvasCtx, initialWaveform, WIDTH, HEIGHT, 0);
+      setNowPlaying(true);
+    }
+  }, [isFirstSong, initialWaveform]);
 
   // 첫 렌더링시 그려주기
-
   useEffect(() => {
     const drawInitialWaveForm = async () => {
       const firstMusicData = selectedMusicData;
@@ -322,7 +345,7 @@ export default function UserPostSongHeader({
     };
 
     drawInitialWaveForm();
-  }, []); // 의존성 배열을 비워 첫 렌더링에서만 실행하게 함.
+  }, [selectedMusicData]);
 
   const progressDragHandler = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
