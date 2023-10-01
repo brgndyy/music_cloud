@@ -77,7 +77,7 @@ export default function PostList({ musicData }: PostListType) {
 
         // 현재 재생 위치보다 왼쪽에 있는 막대의 색상을 변경
         if (x < currentX) {
-          canvasCtx.fillStyle = "rgb(0, 128, 255)"; // 재생된 부분의 색상 (예: 파란색)
+          canvasCtx.fillStyle = "rgb(0, 128, 255)"; // 재생된 부분의 색상
         } else {
           canvasCtx.fillStyle = "rgb(92, 92, 92)"; // 아직 재생되지 않은 부분의 색상
         }
@@ -197,7 +197,7 @@ export default function PostList({ musicData }: PostListType) {
     setCurrentProgressPercent,
   ]);
 
-  // 첫 렌더링시 그려주기
+  // 첫 렌더링시 파형 그려주기
 
   useEffect(() => {
     const drawInitialWaveForm = async () => {

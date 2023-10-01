@@ -36,6 +36,13 @@ export const useMusicPlayer = ({ musicData }: useMusicPlayerType) => {
       // 기존에 존재하던 음악 파일 언마운트 해주기
       if (audioFile) {
         audioFile.pause();
+
+        if (selectedMusic && selectedMusic.id === music.id) {
+          // 선택된 곡이 이미 재생 중인 곡이라면, 새로운 오디오 파일을 로드하지 않고
+          // 기존 오디오 파일 객체를 반환
+          return audioFile;
+        }
+
         setAudioFile(null); // 기존 오디오 객체 해제
         await new Promise((resolve) => setTimeout(resolve, 10)); // 일시적인 딜레이 추가
       }
@@ -49,7 +56,7 @@ export const useMusicPlayer = ({ musicData }: useMusicPlayerType) => {
 
       // setWaveform(initializedWaveForm);
     },
-    [audioFile]
+    [audioFile, selectedMusic]
   );
 
   const handleMouseDown = (

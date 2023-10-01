@@ -53,7 +53,7 @@ export default function UserPosts({
     waveform: Float32Array | null,
     canvasWidth: number,
     canvasHeight: number,
-    currentTimePercent: number // <- 여기에 새 매개변수를 추가합니다.
+    currentTimePercent: number
   ) => {
     if (waveform && canvasCtx) {
       canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -76,7 +76,7 @@ export default function UserPosts({
 
         // 현재 재생 위치보다 왼쪽에 있는 막대의 색상을 변경
         if (x < currentX) {
-          canvasCtx.fillStyle = "rgb(0, 128, 255)"; // 재생된 부분의 색상 (예: 파란색)
+          canvasCtx.fillStyle = "rgb(0, 128, 255)"; // 재생된 부분의 색상
         } else {
           canvasCtx.fillStyle = "rgb(92, 92, 92)"; // 아직 재생되지 않은 부분의 색상
         }
@@ -91,6 +91,26 @@ export default function UserPosts({
     }
   };
 
+  const resetCanvas = useCallback(
+    async (selectedMusic: MusicPostItemType) => {
+      const currentCanvasRef = canvasRefs[selectedMusic.id];
+      if (currentCanvasRef && currentCanvasRef.parentElement) {
+        const canvas = currentCanvasRef;
+        const WIDTH = currentCanvasRef.parentElement.clientWidth;
+        const HEIGHT = currentCanvasRef.parentElement.clientHeight;
+        const canvasCtx = canvas.getContext("2d");
+
+        const index = Object.keys(canvasRefs).indexOf(
+          selectedMusic.id.toString()
+        );
+        if (index !== -1 && initialWaveForms[index]) {
+          drawInitialForm(canvasCtx, initialWaveForms[index], WIDTH, HEIGHT, 0);
+        }
+      }
+    },
+    [canvasRefs, initialWaveForms]
+  );
+
   const setNewAudioFile = useCallback(
     async (music: MusicPostItemType) => {
       // 기존에 존재하던 음악 파일 언마운트 해주기
@@ -99,32 +119,12 @@ export default function UserPosts({
 
         if (selectedMusic && selectedMusic.id === music.id) {
           // 선택된 곡이 이미 재생 중인 곡이라면, 새로운 오디오 파일을 로드하지 않고
-          // 기존 오디오 파일 객체를 반환합니다.
+          // 기존 오디오 파일 객체를 반환
           return audioFile;
         }
 
         // 기존에 재생되고 있는 노래의 캔버스를 초기화함
-        const currentCanvasRef = canvasRefs[selectedMusic.id];
-        if (currentCanvasRef && currentCanvasRef.parentElement) {
-          const canvas = currentCanvasRef;
-          const WIDTH = currentCanvasRef.parentElement.clientWidth;
-          const HEIGHT = currentCanvasRef.parentElement.clientHeight;
-          const canvasCtx = canvas.getContext("2d");
-
-          const index = Object.keys(canvasRefs).indexOf(
-            selectedMusic.id.toString()
-          );
-          if (index !== -1 && initialWaveForms[index]) {
-            // 기존의 캔버스를 초기화하고 기본 파형으로 다시 그림
-            drawInitialForm(
-              canvasCtx,
-              initialWaveForms[index],
-              WIDTH,
-              HEIGHT,
-              0
-            );
-          }
-        }
+        await resetCanvas(selectedMusic);
 
         setAudioFile(null); // 기존 오디오 객체 해제
         await new Promise((resolve) => setTimeout(resolve, 10)); // 일시적인 딜레이 추가
@@ -138,7 +138,7 @@ export default function UserPosts({
       setSelectedMusic(music);
       return newAudioFile; // 생성된 오디오 파일 객체를 반환
     },
-    [audioFile, selectedMusic, canvasRefs, initialWaveForms]
+    [audioFile, selectedMusic, resetCanvas]
   );
 
   const handleMouseDown = (
@@ -206,7 +206,7 @@ export default function UserPosts({
         if (selectedMusic) {
           const id = selectedMusic.id;
           const canvasRef = canvasRefs[id];
-          const index = Object.keys(canvasRefs).indexOf(id.toString()); // 키는 문자열이므로 id를 문자열로 변환해야 합니다.
+          const index = Object.keys(canvasRefs).indexOf(id.toString()); // 키는 문자열이므로 id를 문자열로 변환
 
           if (canvasRef && canvasRef.parentElement && index !== -1) {
             const canvas = canvasRef;
@@ -216,7 +216,7 @@ export default function UserPosts({
             const currentTimePercent =
               audioFile.currentTime / audioFile.duration;
 
-            const initialWaveForm = initialWaveForms[index]; // 이제 인덱스를 사용하여 initialWaveForms에서 initialWaveForm을 가져올 수 있습니다.
+            const initialWaveForm = initialWaveForms[index]; // 이미 파형을 미리 그려준곳에서 index에 맞춰서 파형 가져옴
 
             if (canvasCtx && initialWaveForm)
               drawInitialForm(
@@ -491,6 +491,10 @@ export default function UserPosts({
       setNowPlaying(false);
     }
   };
+
+  // useEffect(() => {
+  //   Object.values(canvasRefs).forEach((canvas) => {
+  //     if (canvas) {
 
   return (
     <>
