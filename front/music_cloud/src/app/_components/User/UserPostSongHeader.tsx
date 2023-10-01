@@ -63,10 +63,10 @@ export default function UserPostSongHeader({
   const [selectedMusic, setSelectedMusic] = useState<MusicPostItemType | null>(
     null
   );
+  let isPlaying = selectedMusicData.id === selectedMusic?.id || false;
+  // const [isCurrentSongPlaying ,setIsCurrentSongPlaying] = useState(false);
   const [nowPlaying, setNowPlaying] = useState(false);
-  const [nowPlayingId, setNowPlayingId] = useState<number | undefined>(
-    undefined
-  );
+  const [nowPlayingId, setNowPlayingId] = useState<number | undefined>(id);
   const [audioFile, setAudioFile] = useState<HTMLAudioElement | null>(null);
   const [isShuffleActive, setIsShuffleActive] = useState(false);
   const [isRepeatActive, setIsRepeatActive] = useState(false);
@@ -239,6 +239,8 @@ export default function UserPostSongHeader({
       const nextIndex = (currentIndex + 1) % musicData.length;
 
       await setNewAudioFile(musicData[nextIndex]);
+
+      setNowPlayingId(musicData[nextIndex].id);
     },
     [isShuffleActive, musicData, shuffleList, setNewAudioFile]
   );
@@ -256,7 +258,6 @@ export default function UserPostSongHeader({
         const percent = (audioFile.currentTime / audioFile.duration) * 100;
         setCurrentProgressPercent(percent);
         setCurrentPlayingTime(currentTimeInSeconds);
-        console.log(isFirstSong);
 
         if (canvasRef.current) {
           if (!isFirstSong) return; // 첫 번째 노래가 아니면 함수 실행 안함.
@@ -443,6 +444,8 @@ export default function UserPostSongHeader({
   const selectSongHandler = async (music: MusicPostItemType) => {
     setPlayerVisible(true);
 
+    console.log(" music : ", music);
+
     if (selectedMusic && selectedMusic.id === music.id) {
       // 같은 노래를 클릭한 경우 일시정지
       setNowPlaying(!nowPlaying);
@@ -498,7 +501,8 @@ export default function UserPostSongHeader({
     await setNewAudioFile(musicData[prevIndex]);
   };
 
-  const playCurrentSongHandler = (currentMusicId?: number) => {
+  const playCurrentSongHandler = async (currentMusicId?: number) => {
+    console.log("currentMusicId : ", currentMusicId);
     if (audioFile) {
       audioFile.play();
       setNowPlaying(true);
@@ -508,7 +512,14 @@ export default function UserPostSongHeader({
     }
   };
 
+  useEffect(() => {
+    console.log("nowPlayingId : ", nowPlayingId);
+    console.log("selectedMusic?.id : ", selectedMusic?.id);
+  }, [nowPlayingId, selectedMusic]);
+
   const pauseCurrentSongHandler = (currentMusicId?: number) => {
+    console.log(currentMusicId);
+    isPlaying = false;
     if (audioFile) {
       audioFile.pause();
       setNowPlaying(false);
@@ -527,10 +538,12 @@ export default function UserPostSongHeader({
           <div className={music_info_card}>
             <div className={music_info_container}>
               <div className={`${user_post_play_button_div} ${myStyle}`}>
-                {nowPlaying ? (
+                {isPlaying ? (
                   <GiPauseButton
                     className={pause_button}
-                    onClick={() => pauseCurrentSongHandler(selectedMusic?.id)}
+                    onClick={() =>
+                      pauseCurrentSongHandler(selectedMusicData.id)
+                    }
                   />
                 ) : (
                   <FaPlay

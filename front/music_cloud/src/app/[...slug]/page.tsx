@@ -14,25 +14,33 @@ export default async function ProfilePage({
 }: {
   params: { slug: string };
 }) {
-  const slugName = params.slug[0].replace("%40", "").replace("%20", " ");
-  const songTitle = decodeURIComponent(params.slug[1].replace("%40", "@"));
+  const slugName = params.slug[0]
+    ? params.slug[0].replace("%40", "").replace("%20", " ")
+    : "";
+  const songTitle = params.slug[1]
+    ? decodeURIComponent(params.slug[1].replace("%40", "@"))
+    : "";
+
   let musicDataFromTitle;
   let gradientColorFromArtwork;
   let selectedMusicData;
 
-  // 노래 제목까지 그대로 있는 페이지로 접속했을때
   if (songTitle) {
     musicDataFromTitle = getMusicDataFromTitle(slugName, songTitle);
 
-    const { image } = musicDataFromTitle[0];
+    if (musicDataFromTitle && musicDataFromTitle[0]) {
+      const { image } = musicDataFromTitle[0];
 
-    selectedMusicData = musicDataFromTitle[0];
-    gradientColorFromArtwork = await getGradient(image);
+      selectedMusicData = musicDataFromTitle[0];
+      gradientColorFromArtwork = await getGradient(image);
+    }
   }
 
-  // 그냥 개인 회원 프로필 페이지만 접속했을때
   const musicData = getArtstMusicsAndInfo(slugName);
   const initialWaveForms = await getMusicWaveForms(slugName);
+
+  if (!musicData || !musicData[0] || !musicData[0].artistInfo) return null; // or some error handling logic
+
   const { artistName, avatarImage, artistDescription } =
     musicData[0].artistInfo;
   const gradientColorFromAvatarImage = await getGradient(avatarImage);

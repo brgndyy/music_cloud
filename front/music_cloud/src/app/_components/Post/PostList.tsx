@@ -9,50 +9,62 @@ import MusicPlayer from "../Music/MusicPlayer";
 import { MusicPostItemType } from "@/app/_utils/_types/types";
 import HeadingPost from "./HeadingPost";
 import WaveFormCanvas from "../WaveForm/WaveFormCanvas";
+import { useMusicPlayer } from "@/app/_libs/hooks/useMusicPlayer";
 
 type PostListType = {
   musicData: MusicPostItemType[];
 };
 
 export default function PostList({ musicData }: PostListType) {
-  const [playerVisible, setPlayerVisible] = useState(false);
-  const [selectedMusic, setSelectedMusic] = useState<MusicPostItemType | null>(
-    null
-  );
-  const [nowPlaying, setNowPlaying] = useState(false);
-  const [audioFile, setAudioFile] = useState<HTMLAudioElement | null>(null);
-  const [isShuffleActive, setIsShuffleActive] = useState(false);
-  const [isRepeatActive, setIsRepeatActive] = useState(false);
-  const [shuffledList, setShuffledList] = useState<MusicPostItemType[]>([]);
-  const [volume, setVolume] = useState<number>(0);
-  const [currentProgressPercent, setCurrentProgressPercent] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [initialX, setInitialX] = useState<number | null>(null);
-  const [currentPlayingTime, setCurrentPlayingTime] = useState<number>(0);
+  const {
+    nowPlaying,
+    audioFile,
+    playerVisible,
+    selectedMusic,
+    playCurrentSongHandler,
+    pauseCurrentSongHandler,
+    nextSongPlayHandler,
+    prevSongPlayHandler,
+    shuffleActiveHandler,
+    isShuffleActive,
+    volumeHandler,
+    volume,
+    currentProgressPercent,
+    progressDragHandler,
+    handleMouseUp,
+    handleMouseDown,
+    clickProgressBarHandler,
+    currentPlayingTime,
+    settingRepeatHandler,
+    setCurrentProgressPercent,
+    setCurrentPlayingTime,
+    setPlayerVisible,
+    setNowPlaying,
+    setNewAudioFile,
+    isRepeatActive,
+  } = useMusicPlayer({ musicData });
+
   const canvasRef: RefObject<HTMLCanvasElement> =
     useRef<HTMLCanvasElement>(null);
   const [waveform, setWaveform] = useState<Float32Array | null>(null);
-
-  const settingRepeatHandler = () => {
-    setIsRepeatActive(!isRepeatActive);
-  };
 
   const drawWaveForm = (
     canvasCtx: CanvasRenderingContext2D | null,
     waveform: Float32Array | null, //
     canvasWidth: number, // 캔버스 넓이
     canvasHeight: number, // 캔버스 높이
+    barWidth: number, // 막대 넓이
+    gap: number, // 막대 사이 간격
+    baseHeightRatio: number, // 막대 기본 높이
+    variability: number, // 막대 높낮이 차이
     currentTimePercent: number // 현재 재생 위치의 퍼센트
   ) => {
     if (waveform && canvasCtx) {
       canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-      const barWidth = 5;
-      const gap = 5;
       let x = 0;
 
-      const baseHeight = canvasHeight * 0.2;
-      const variability = 0.4;
+      const baseHeight = canvasHeight * baseHeightRatio;
       const maxAmplitude = Math.max(...waveform);
 
       const currentX = currentTimePercent * canvasWidth; // 현재 재생 범위
@@ -80,7 +92,7 @@ export default function PostList({ musicData }: PostListType) {
     }
   };
 
-  const initializeWaveForm = async (fileUrl: string) => {
+  const initializeWaveForm = async (fileUrl: string, samples: number) => {
     try {
       const audioContext = new AudioContext();
       const res = await fetch(`${fileUrl}`);
@@ -94,7 +106,7 @@ export default function PostList({ musicData }: PostListType) {
           ? audioBuffer.getChannelData(1)
           : leftChannel;
 
-      const samples = 200; // 원하는 샘플 수 많아질수록 오디오 막대들이 빽빽해짐
+      // const samples = 200; // 원하는 샘플 수 많아질수록 오디오 막대들이 빽빽해짐
       const blockSize = Math.floor(leftChannel.length / samples);
       let waveform = new Float32Array(samples);
 
@@ -114,74 +126,6 @@ export default function PostList({ musicData }: PostListType) {
       return null;
     }
   };
-
-  const setNewAudioFile = useCallback(
-    async (music: MusicPostItemType) => {
-      // 기존에 존재하던 음악 파일 언마운트 해주기
-      if (audioFile) {
-        audioFile.pause();
-        setAudioFile(null); // 기존 오디오 객체 해제
-        await new Promise((resolve) => setTimeout(resolve, 10)); // 일시적인 딜레이 추가
-      }
-
-      const newAudioFile = new Audio(music.file);
-      setAudioFile(newAudioFile);
-      setNowPlaying(true);
-      setSelectedMusic(music);
-      const initializedWaveForm = await initializeWaveForm(music.file);
-
-      setWaveform(initializedWaveForm);
-    },
-    [audioFile]
-  );
-
-  const handleMouseDown = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
-    if (!audioFile) {
-      return;
-    }
-    setInitialX(event.clientX);
-    setIsDragging(true);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const shuffleList = useCallback(async () => {
-    const nextRandomSong = shuffledList[0];
-    shuffledList.splice(0, 1); // 첫 번째 노래를 목록에서 제거
-    if (shuffledList.length === 0) {
-      // 모든 노래가 재생되었으면 다시 섞음
-      const shuffled = [...musicData];
-      shuffled.sort(() => Math.random() - 0.5);
-      setShuffledList(shuffled);
-    }
-    await setNewAudioFile(nextRandomSong);
-  }, [musicData, setNewAudioFile, shuffledList]);
-
-  const nextSongPlayHandler = useCallback(
-    async (currentMusicId?: number) => {
-      if (typeof currentMusicId === "undefined") {
-        return;
-      }
-
-      if (isShuffleActive) {
-        await shuffleList();
-        return;
-      }
-
-      const currentIndex = musicData.findIndex(
-        (music) => music.id === currentMusicId
-      );
-
-      const nextIndex = (currentIndex + 1) % musicData.length;
-
-      await setNewAudioFile(musicData[nextIndex]);
-    },
-    [isShuffleActive, musicData, shuffleList, setNewAudioFile]
-  );
 
   useEffect(() => {
     if (audioFile) {
@@ -204,7 +148,17 @@ export default function PostList({ musicData }: PostListType) {
           const HEIGHT = canvas.height;
           const currentTimePercent = audioFile.currentTime / audioFile.duration;
 
-          drawWaveForm(canvasCtx, waveform, WIDTH, HEIGHT, currentTimePercent);
+          drawWaveForm(
+            canvasCtx,
+            waveform,
+            WIDTH,
+            HEIGHT,
+            5,
+            5,
+            0.2,
+            0.4,
+            currentTimePercent
+          );
         }
       };
 
@@ -239,6 +193,8 @@ export default function PostList({ musicData }: PostListType) {
     volume,
     isRepeatActive,
     waveform,
+    setCurrentPlayingTime,
+    setCurrentProgressPercent,
   ]);
 
   // 첫 렌더링시 그려주기
@@ -247,7 +203,10 @@ export default function PostList({ musicData }: PostListType) {
     const drawInitialWaveForm = async () => {
       const firstMusicData = musicData[0];
 
-      const initializedWaveForm = await initializeWaveForm(firstMusicData.file);
+      const initializedWaveForm = await initializeWaveForm(
+        firstMusicData.file,
+        200
+      );
 
       if (canvasRef.current) {
         const canvas = canvasRef.current;
@@ -257,108 +216,29 @@ export default function PostList({ musicData }: PostListType) {
         const WIDTH = canvas.width;
         const HEIGHT = canvas.height;
 
-        drawWaveForm(canvasCtx, initializedWaveForm, WIDTH, HEIGHT, 0);
+        drawWaveForm(
+          canvasCtx,
+          initializedWaveForm,
+          WIDTH,
+          HEIGHT,
+          5,
+          5,
+          0.2,
+          0.4,
+          0
+        );
       }
     };
 
     drawInitialWaveForm();
   }, [audioFile, musicData]);
 
-  const progressDragHandler = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
-    event.stopPropagation();
-    if (!isDragging || !initialX || !audioFile) return;
-
-    const progressBar = event.currentTarget;
-    const rect = progressBar.getBoundingClientRect();
-    const dragChange = event.clientX - initialX;
-
-    const sensitivity = 0.5;
-    const normalizedDragChange = dragChange * sensitivity;
-
-    const dragPercent = normalizedDragChange / rect.width;
-    const newTime = audioFile.currentTime + dragPercent * audioFile.duration;
-    const percent = (newTime / audioFile.duration) * 100;
-
-    if (newTime >= 0 && newTime <= audioFile.duration) {
-      audioFile.currentTime = newTime;
-      setCurrentProgressPercent(percent);
-    }
-
-    setInitialX(event.clientX);
-  };
-
-  const progressHandler = (clientX: number, element: HTMLElement | Element) => {
-    if (!audioFile) return;
-
-    const rect = element.getBoundingClientRect();
-
-    const clickPosition = (clientX - rect.left) / rect.width;
-    const newTime = clickPosition * audioFile.duration;
-    const percent = clickPosition * 100;
-
-    if (newTime >= 0 && newTime <= audioFile.duration) {
-      audioFile.currentTime = newTime;
-      setCurrentProgressPercent(percent);
-    }
-  };
-
-  const clickProgressBarDivHandler = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
-    progressHandler(event.clientX, event.currentTarget);
-  };
-
-  const clickCanvasProgressBarHandler = (
-    event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-  ) => {
-    progressHandler(event.clientX, event.currentTarget);
-  };
-
-  const volumeHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseInt(e.target.value, 10);
-    const normalizedVolume = newVolume / 100;
-    if (audioFile) {
-      audioFile.volume = normalizedVolume;
-    }
-    setVolume(newVolume);
-
-    await fetch("/api/volume", {
-      method: "POST",
-      body: JSON.stringify({
-        volume: newVolume,
-      }),
-    });
-  };
-
-  // 초기 렌더링시 볼륨 값 가져오기
-  useEffect(() => {
-    const fetchVolume = async () => {
-      const response = await fetch("/api/volume");
-      const { volume } = await response.json();
-
-      setVolume(volume);
-    };
-
-    fetchVolume();
-  }, []);
-
-  const shuffleActiveHandler = () => {
-    setIsShuffleActive(!isShuffleActive);
-  };
-
-  useEffect(() => {
-    // 랜덤 재생이 활성화 되어있을때 무작위로 섞음
-    if (isShuffleActive) {
-      const shuffled = [...musicData];
-      shuffled.sort(() => Math.random() - 0.5);
-      setShuffledList(shuffled);
-    }
-  }, [isShuffleActive, musicData]);
-
   const selectSongHandler = async (music: MusicPostItemType) => {
     setPlayerVisible(true);
+
+    const initializedWaveForm = await initializeWaveForm(music.file, 200);
+
+    setWaveform(initializedWaveForm);
 
     if (selectedMusic && selectedMusic.id === music.id) {
       // 같은 노래를 클릭한 경우 일시정지
@@ -368,97 +248,11 @@ export default function PostList({ musicData }: PostListType) {
     }
   };
 
-  // 컴포넌트가 언마운트될 때 Audio 객체 해제
-  useEffect(() => {
-    return () => {
-      if (audioFile) {
-        audioFile.pause();
-        setAudioFile(null);
-      }
-    };
-  }, [audioFile]);
-
-  useEffect(() => {
-    if (audioFile) {
-      if (nowPlaying) {
-        audioFile
-          .play()
-          .catch((error) =>
-            console.error("음악파일 재생중 에러가 발생했어요!:", error)
-          );
-      } else {
-        audioFile.pause();
-      }
-    }
-  }, [nowPlaying, audioFile]);
-
-  const prevSongPlayHandler = async (currentMusicId?: number) => {
-    if (typeof currentMusicId === "undefined") {
-      return;
-    }
-
-    if (isShuffleActive) {
-      await shuffleList();
-      return;
-    }
-
-    const currentIndex = musicData.findIndex(
-      (music) => music.id === currentMusicId
-    );
-
-    let prevIndex = currentIndex - 1;
-
-    if (prevIndex < 0) {
-      prevIndex = musicData.length - 1;
-    }
-
-    await setNewAudioFile(musicData[prevIndex]);
-  };
-
-  const playCurrentSongHandler = () => {
-    if (audioFile) {
-      audioFile.play();
-      setNowPlaying(true);
-    }
-  };
-
-  const pauseCurrentSongHandler = () => {
-    if (audioFile) {
-      audioFile.pause();
-      setNowPlaying(false);
-    }
-  };
-
-  // 초기 렌더링때 캔버스 넓이 설정해주기
-  // useEffect(() => {
-  //   if (canvasRef.current) {
-  //     canvasRef.current.width = canvasRef.current.offsetWidth;
-  //   }
-  // }, []);
-
-  // 브라우저 넓이 바뀔때마다 캔버스 사이즈 조절 해주기
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (canvasRef.current) {
-  //       canvasRef.current.width = canvasRef.current.offsetWidth;
-  //       canvasRef.current.height = canvasRef.current.offsetHeight;
-
-  //     }
-  //   };
-
-  //   window.addEventListener("resize", handleResize);
-  //   handleResize(); // 초기 크기 설정
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []);
-
   return (
     <>
       <WaveFormCanvas
         canvasRef={canvasRef}
-        clickCanvasProgressBarHandler={clickCanvasProgressBarHandler}
+        clickCanvasProgressBarHandler={clickProgressBarHandler}
       />
 
       <HeadingPost />
@@ -492,7 +286,7 @@ export default function PostList({ musicData }: PostListType) {
         progressDragHandler={progressDragHandler}
         handleMouseUp={handleMouseUp}
         handleMouseDown={handleMouseDown}
-        progressBarClickHandler={clickProgressBarDivHandler}
+        progressBarClickHandler={clickProgressBarHandler}
         currentPlayingTime={currentPlayingTime}
         settingRepeatHandler={settingRepeatHandler}
         isRepeatActive={isRepeatActive}

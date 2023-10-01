@@ -68,8 +68,6 @@ export default function UserPosts({
 
       const currentX = currentTimePercent * canvasWidth; // 현재 재생 범위
 
-      const barsToDraw = canvasWidth / (barWidth + gap);
-
       for (let i = 0; i < waveform.length; i++) {
         const variation =
           baseHeight * variability * (waveform[i] / maxAmplitude);
@@ -196,7 +194,6 @@ export default function UserPosts({
       // 쿠키에 있던 볼륨 값 들고와서 오디오 자체 볼륨 설정해주기
       const normalizedVolume = volume / 100;
       audioFile.volume = normalizedVolume;
-      const canvasRef = canvasRefs[selectedMusic.id];
 
       // 오디오 파일의 재생 시간이 변경될 때마다 호출될 핸들러
       const handleTimeUpdate = () => {
@@ -494,43 +491,6 @@ export default function UserPosts({
       setNowPlaying(false);
     }
   };
-
-  // useEffect(() => {
-  //   Object.values(canvasRefs).forEach((canvas) => {
-  //     if (canvas) {
-  //       canvas.width = canvas.offsetWidth;
-  //     }
-  //   });
-  // }, [canvasRefs]);
-
-  // 브라우저 넓이 바뀔때마다 캔버스 사이즈 조절 해주기
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     Object.values(canvasRefs).forEach((canvas) => {
-  //       const numKey = Number(canvas);
-  //       const ref = canvasRefs[numKey];
-
-  //       console.log("ref : ", ref);
-
-  //       if (ref) {
-  //         const canvas = ref;
-  //         canvas.width = canvas.offsetWidth;
-  //         canvas.height = canvas.offsetHeight;
-
-  //         console.log("canvas.offsetWidth: ", canvas.offsetWidth);
-  //         console.log("canvas.offsetHeight: ", canvas.offsetHeight);
-  //       }
-  //     });
-  //   };
-
-  //   window.addEventListener("resize", handleResize);
-  //   handleResize(); // 초기 크기 설정
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, [canvasRefs]);
 
   return (
     <>
