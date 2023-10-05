@@ -66,7 +66,9 @@ export default function UserPostSongHeader({
   let isPlaying = selectedMusicData.id === selectedMusic?.id || false;
   // const [isCurrentSongPlaying ,setIsCurrentSongPlaying] = useState(false);
   const [nowPlaying, setNowPlaying] = useState(false);
-  const [nowPlayingId, setNowPlayingId] = useState<number | undefined>(id);
+  const [nowPlayingId, setNowPlayingId] = useState<number | undefined>(
+    undefined
+  );
   const [audioFile, setAudioFile] = useState<HTMLAudioElement | null>(null);
   const [isShuffleActive, setIsShuffleActive] = useState(false);
   const [isRepeatActive, setIsRepeatActive] = useState(false);
@@ -186,7 +188,9 @@ export default function UserPostSongHeader({
       setAudioFile(newAudioFile);
       setNowPlaying(true);
       setSelectedMusic(music);
+      setNowPlayingId(music.id);
 
+      return newAudioFile;
       // const initializedWaveForm = await initializeWaveForm(music.file);
 
       // setWaveform(initializedWaveForm);
@@ -222,7 +226,6 @@ export default function UserPostSongHeader({
 
   const nextSongPlayHandler = useCallback(
     async (currentMusicId?: number) => {
-      setIsFirstSong(false);
       if (typeof currentMusicId === "undefined") {
         return;
       }
@@ -239,8 +242,6 @@ export default function UserPostSongHeader({
       const nextIndex = (currentIndex + 1) % musicData.length;
 
       await setNewAudioFile(musicData[nextIndex]);
-
-      setNowPlayingId(musicData[nextIndex].id);
     },
     [isShuffleActive, musicData, shuffleList, setNewAudioFile]
   );
@@ -259,8 +260,7 @@ export default function UserPostSongHeader({
         setCurrentProgressPercent(percent);
         setCurrentPlayingTime(currentTimeInSeconds);
 
-        if (canvasRef.current) {
-          if (!isFirstSong) return; // 첫 번째 노래가 아니면 함수 실행 안함.
+        if (selectedMusicData.id === selectedMusic?.id && canvasRef.current) {
           const canvas = canvasRef.current;
           const canvasCtx = canvas.getContext("2d");
           const WIDTH = canvas.width;
@@ -305,6 +305,7 @@ export default function UserPostSongHeader({
   }, [
     audioFile,
     initialWaveform,
+    selectedMusicData,
     nextSongPlayHandler,
     isFirstSong,
     isRepeatActive,
@@ -314,7 +315,7 @@ export default function UserPostSongHeader({
 
   // 첫번째 노래 재생 끝나고 다른 노래 재생될때 노래 재생 초기화
   useEffect(() => {
-    if (!isFirstSong && canvasRef.current) {
+    if (selectedMusicData.id !== selectedMusic?.id && canvasRef.current) {
       const canvas = canvasRef.current;
       const canvasCtx = canvas.getContext("2d");
       const WIDTH = canvas.width;
@@ -323,7 +324,7 @@ export default function UserPostSongHeader({
       drawWaveForm(canvasCtx, initialWaveform, WIDTH, HEIGHT, 0);
       setNowPlaying(true);
     }
-  }, [isFirstSong, initialWaveform]);
+  }, [selectedMusicData, initialWaveform, selectedMusic]);
 
   // 첫 렌더링시 그려주기
   useEffect(() => {
@@ -374,7 +375,7 @@ export default function UserPostSongHeader({
   };
 
   const progressHandler = (clientX: number, element: HTMLElement | Element) => {
-    if (!audioFile) return;
+    if (!audioFile || !element) return;
 
     const rect = element.getBoundingClientRect();
 
@@ -386,6 +387,8 @@ export default function UserPostSongHeader({
       audioFile.currentTime = newTime;
       setCurrentProgressPercent(percent);
     }
+
+    return newTime;
   };
 
   const clickProgressBarDivHandler = (
@@ -394,10 +397,35 @@ export default function UserPostSongHeader({
     progressHandler(event.clientX, event.currentTarget);
   };
 
-  const clickCanvasProgressBarHandler = (
+  const clickCanvasProgressBarHandler = async (
     event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
-    progressHandler(event.clientX, event.currentTarget);
+    const canvas = event.currentTarget;
+    const musicId = canvas.dataset.id;
+
+    if (musicId) {
+      const selectedMusic = musicData.find(
+        (music) => music.id === parseInt(musicId)
+      );
+
+      console.log("selectedMusic : ", selectedMusic);
+      // 음악이 존재할때
+      if (selectedMusic) {
+        setPlayerVisible(true);
+        const activeAudioFile = await setNewAudioFile(selectedMusic);
+
+        if (canvas) {
+          // canvas가 존재하는 경우에만 progressHandler 호출
+          const clickedTime = progressHandler(event.clientX, canvas);
+          if (Number.isFinite(clickedTime) && activeAudioFile) {
+            activeAudioFile.currentTime = Number(clickedTime);
+            if (activeAudioFile.paused) {
+              activeAudioFile.play();
+            }
+          }
+        }
+      }
+    }
   };
 
   const volumeHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -513,13 +541,28 @@ export default function UserPostSongHeader({
   };
 
   useEffect(() => {
-    console.log("nowPlayingId : ", nowPlayingId);
-    console.log("selectedMusic?.id : ", selectedMusic?.id);
-  }, [nowPlayingId, selectedMusic]);
+    console.log("초기 nowPlayingId : ", nowPlayingId);
+    console.log("초기 selectedMusicData.id : ", selectedMusicData.id);
+  }, [nowPlayingId, selectedMusicData]);
 
   const pauseCurrentSongHandler = (currentMusicId?: number) => {
     console.log(currentMusicId);
     isPlaying = false;
+    if (audioFile) {
+      audioFile.pause();
+      setNowPlaying(false);
+    }
+  };
+
+  const currentSongPlayHandler = async (music: MusicPostItemType) => {
+    console.log("music : ", music);
+    setPlayerVisible(true);
+    await setNewAudioFile(music);
+  };
+
+  const currentSongPauseHandler = async (music: MusicPostItemType) => {
+    console.log("selectedMusicData : ", selectedMusicData);
+    setNowPlayingId(undefined);
     if (audioFile) {
       audioFile.pause();
       setNowPlaying(false);
@@ -538,17 +581,15 @@ export default function UserPostSongHeader({
           <div className={music_info_card}>
             <div className={music_info_container}>
               <div className={`${user_post_play_button_div} ${myStyle}`}>
-                {isPlaying ? (
+                {nowPlayingId === selectedMusicData.id ? (
                   <GiPauseButton
                     className={pause_button}
-                    onClick={() =>
-                      pauseCurrentSongHandler(selectedMusicData.id)
-                    }
+                    onClick={() => currentSongPauseHandler(selectedMusicData)}
                   />
                 ) : (
                   <FaPlay
                     className={play_button}
-                    onClick={() => selectSongHandler(selectedMusicData)}
+                    onClick={() => currentSongPlayHandler(selectedMusicData)}
                   />
                 )}
               </div>
@@ -570,6 +611,7 @@ export default function UserPostSongHeader({
             </div>
             <UserPostWaveForm
               canvasRef={canvasRef}
+              dataId={selectedMusicData.id}
               clickCanvasProgressBarHandler={clickCanvasProgressBarHandler}
             />
           </div>
@@ -578,7 +620,7 @@ export default function UserPostSongHeader({
             <Image
               src={image}
               width={200}
-              height={200}
+              height={250}
               alt="artwork"
               className={artwork_image}
             />

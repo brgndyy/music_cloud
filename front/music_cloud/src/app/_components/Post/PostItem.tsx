@@ -72,7 +72,7 @@ export default function PostItem({
 
         <span className={track_time}>{formattedTime}</span>
         <span className={track_tagList}>
-          {tagList.map((tag, key) => {
+          {tagList.slice(0, 2).map((tag, key) => {
             return (
               <span className={track_tag} key={key}>
                 <span className={track_tag_text}>{tag}</span>

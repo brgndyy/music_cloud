@@ -226,6 +226,11 @@ export const artist_name = style({
 
 export const canvas_container = style({
   width: "100%",
+  opacity: "0.8",
+  transition: "all 0.3s ease",
+  ":hover": {
+    opacity: " 1",
+  },
 });
 
 export const user_post_canvas_card = style({

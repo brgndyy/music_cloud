@@ -95,3 +95,11 @@ export const artwork_image = style({
   position: "absolute",
   right: "0",
 });
+
+export const post_song_canvas = style({
+  opacity: "0.8",
+  transition: "all 0.3s ease",
+  ":hover": {
+    opacity: " 1",
+  },
+});

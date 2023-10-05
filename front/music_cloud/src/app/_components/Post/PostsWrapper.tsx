@@ -31,13 +31,9 @@ type MusicPostItemType = {
 
 type MusicPostListType = {
   musicData: MusicPostItemType[];
-
 };
 
-export default function PostsWrapper({
-  musicData,
-
-}: MusicPostListType) {
+export default function PostsWrapper({ musicData }: MusicPostListType) {
   return (
     <>
       <div className={post_wrapper}>

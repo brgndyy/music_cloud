@@ -71,4 +71,5 @@ globalStyle(`.${progress_bar_container}:hover + .${progress_bar_ball}`, {
 globalStyle("canvas", {
   width: "100%",
   display: "block",
+  cursor: "pointer",
 });
