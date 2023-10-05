@@ -1,5 +1,5 @@
 import { globalStyle } from "@vanilla-extract/css";
-import { main_background_color_var } from "./_styles/vars.css";
+import { main_background_color_var, text3_color_var } from "./_styles/vars.css";
 import {
   progress_bar_ball,
   progress_bar_percent,
